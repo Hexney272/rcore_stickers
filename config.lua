@@ -8,7 +8,7 @@ Config.EnableDebug = false
 
 Config.Language = 'EN' -- [ 'EN' ] Custom locales can be added to locale.lua
 Config.Database = 'oxmysql' --[ 'mysql-async' / 'oxmysql' / 'ghmattimysql' ] Choose your sql driver (leave empty for standalone)
-Config.Framework = esx --[ 'esx' / 'qbcore' / 'other' ] Choose your framework (leave empty for standalone)
+Config.Framework = 'esx' --[ 'esx' / 'qbcore' / 'other' ] Choose your framework (leave empty for standalone)
 
 Config.FrameworkTriggers = {
     notify = 'esx:showNotification', -- [ ESX = 'esx:showNotification'    QBCore = 'QBCore:Notify' ] Set the notification event, if left blank, default will be used
@@ -84,7 +84,7 @@ Config.Text['ERROR_OUT_OF_RANGE']    = 'You went too far from the vehicle.'
 Config.Text['ERROR_MAX_STICKERS']    = 'This vehicle has already reached maximum amount of stickers.'
 Config.Text['ERROR_NO_STICKERS']     = 'This vehicle has no stickers on it.'
 Config.Text['ERROR_NO_MONEY']        = 'You do not have enough money for this sticker.'
-Config.Text['ERORR_NOT_ALLOWED']     = 'You are not allowed to place this sticker.'
+Config.Text['ERROR_NOT_ALLOWED']     = 'You are not allowed to place this sticker.'
 
 Config.Text['SUCCESS_PLACED']  = 'Sticker has been successfully placed.'
 Config.Text['SUCCESS_EDITED']  = 'Sticker has been successfully edited.'

@@ -1,856 +1,377 @@
-local L0_1, L1_1, L2_1, L3_1
-L0_1 = Config
-L0_1 = L0_1.Framework
-L0_1 = nil == L0_1
-NO_FRAMEWORK = L0_1
-L0_1 = {}
-ActiveIdentifiers = L0_1
-L0_1 = {}
-ActiveStickers = L0_1
-SelectedVehicle = 0
-ErrorMsgAdd = ""
-ErrorMsgEdit = ""
-L0_1 = Config
-L0_1 = L0_1.Accessibility
-L0_1 = L0_1.event
-if L0_1 then
-  L0_1 = RegisterNetEvent
-  L1_1 = "rcore_stickers:openMenu"
-  L0_1(L1_1)
-  L0_1 = AddEventHandler
-  L1_1 = "rcore_stickers:openMenu"
-  function L2_1()
-    local L0_2, L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2
-    SelectedVehicle = 0
-    L0_2 = ShapeTestFromGameplayCam
-    L0_2, L1_2, L2_2, L3_2, L4_2 = L0_2()
-    if 0 ~= L4_2 then
-      L5_2 = TriggerServerEvent
-      L6_2 = "lsrp_stickers:openMenu"
-      L7_2 = NetworkGetNetworkIdFromEntity
-      L8_2 = L4_2
-      L7_2, L8_2 = L7_2(L8_2)
-      L5_2(L6_2, L7_2, L8_2)
-    else
-      L5_2 = ShowNotification
-      L6_2 = Config
-      L6_2 = L6_2.Text
-      L6_2 = L6_2.ERROR_NO_ENTITY
-      if not L6_2 then
-        L6_2 = "You are not looking at any vehicle."
-      end
-      L5_2(L6_2)
-    end
-  end
-  L0_1(L1_1, L2_1)
-else
-  L0_1 = RegisterCommand
-  L1_1 = "stickers"
-  function L2_1()
-    local L0_2, L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2
-    SelectedVehicle = 0
-    L0_2 = ShapeTestFromGameplayCam
-    L0_2, L1_2, L2_2, L3_2, L4_2 = L0_2()
-    if 0 ~= L4_2 then
-      L5_2 = TriggerServerEvent
-      L6_2 = "lsrp_stickers:openMenu"
-      L7_2 = NetworkGetNetworkIdFromEntity
-      L8_2 = L4_2
-      L7_2, L8_2 = L7_2(L8_2)
-      L5_2(L6_2, L7_2, L8_2)
-    else
-      L5_2 = ShowNotification
-      L6_2 = Config
-      L6_2 = L6_2.Text
-      L6_2 = L6_2.ERROR_NO_ENTITY
-      if not L6_2 then
-        L6_2 = "You are not looking at any vehicle."
-      end
-      L5_2(L6_2)
-    end
-  end
-  L3_1 = false
-  L0_1(L1_1, L2_1, L3_1)
-end
-L0_1 = RegisterNetEvent
-L1_1 = "lsrp_stickers:openMenu"
-L0_1(L1_1)
-L0_1 = AddEventHandler
-L1_1 = "lsrp_stickers:openMenu"
-function L2_1(A0_2, A1_2, A2_2)
-  local L3_2, L4_2
-  SelectedVehicle = A0_2
-  ErrorMsgAdd = A1_2
-  ErrorMsgEdit = A2_2
-  L3_2 = WarMenu
-  L3_2 = L3_2.OpenMenu
-  L4_2 = "STICKERS_MAIN"
-  L3_2(L4_2)
-end
-L3_1 = false
-L0_1(L1_1, L2_1, L3_1)
-L0_1 = RegisterNetEvent
-L1_1 = "lsrp_stickers:refreshStickers"
-L0_1(L1_1)
-L0_1 = AddEventHandler
-L1_1 = "lsrp_stickers:refreshStickers"
-function L2_1(A0_2)
-  local L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2, L15_2, L16_2, L17_2, L18_2
-  L1_2 = next
-  L2_2 = A0_2
-  L1_2 = L1_2(L2_2)
-  if nil == L1_2 then
-    L1_2 = pairs
-    L2_2 = ActiveStickers
-    L1_2, L2_2, L3_2, L4_2 = L1_2(L2_2)
-    for L5_2, L6_2 in L1_2, L2_2, L3_2, L4_2 do
-      L7_2 = RemoveSticker
-      L8_2 = L6_2
-      L7_2(L8_2)
-      L7_2 = ActiveIdentifiers
-      L8_2 = L6_2.mapId
-      L7_2[L8_2] = false
-      L7_2 = ActiveStickers
-      L8_2 = L6_2.id
-      L7_2[L8_2] = nil
-    end
-  else
-    L1_2 = {}
-    L2_2 = pairs
-    L3_2 = A0_2
-    L2_2, L3_2, L4_2, L5_2 = L2_2(L3_2)
-    for L6_2, L7_2 in L2_2, L3_2, L4_2, L5_2 do
-      L8_2 = GetClosestVehicleToPlayer
-      L9_2 = NO_FRAMEWORK
-      if not L9_2 then
-        L9_2 = true
-        if L9_2 then
-          goto lbl_37
-        end
-      end
-      L9_2 = false
-      ::lbl_37::
-      L8_2 = L8_2(L9_2)
-      L9_2 = 1
-      L10_2 = #L7_2
-      L11_2 = 1
-      for L12_2 = L9_2, L10_2, L11_2 do
-        L13_2 = L7_2[L12_2]
-        L14_2 = DoesStickerTextureExist
-        L15_2 = L13_2.name
-        L16_2 = L13_2.dict
-        L14_2 = L14_2(L15_2, L16_2)
-        if L14_2 then
-          L14_2 = L13_2.id
-          L1_2[L14_2] = L13_2
-          L14_2 = ActiveStickers
-          L15_2 = L13_2.id
-          L14_2 = L14_2[L15_2]
-          if nil == L14_2 then
-            L14_2 = NetworkGetEntityFromNetworkId
-            L15_2 = L6_2
-            L14_2 = L14_2(L15_2)
-            L15_2 = GetUsableIdentifier
-            L15_2 = L15_2()
-            if nil == L15_2 then
-              if L8_2 == L14_2 then
-                L16_2 = SelectedVehicle
-                if 0 == L16_2 then
-                  L16_2 = FreeIdentifier
-                  L17_2 = L14_2
-                  L16_2 = L16_2(L17_2)
-                  L15_2 = L16_2
-                  goto lbl_74
-                end
-              end
-            ::lbl_74::
-            else
-              L13_2.mapId = L15_2
-              L16_2 = ApplySticker
-              L17_2 = L13_2
-              L18_2 = 1.0
-              L16_2(L17_2, L18_2)
-              L16_2 = ActiveIdentifiers
-              L17_2 = L13_2.mapId
-              L16_2[L17_2] = true
-              L16_2 = ActiveStickers
-              L17_2 = L13_2.id
-              L16_2[L17_2] = L13_2
-            end
-          else
-            L14_2 = IsDecalAlive
-            L15_2 = ActiveStickers
-            L16_2 = L13_2.id
-            L15_2 = L15_2[L16_2]
-            L15_2 = L15_2.handle
-            L14_2 = L14_2(L15_2)
-            if 1 ~= L14_2 then
-              L14_2 = ApplySticker
-              L15_2 = ActiveStickers
-              L16_2 = L13_2.id
-              L15_2 = L15_2[L16_2]
-              L16_2 = 1.0
-              L14_2(L15_2, L16_2)
-            end
-          end
-        end
-      end
-    end
-    L2_2 = pairs
-    L3_2 = ActiveStickers
-    L2_2, L3_2, L4_2, L5_2 = L2_2(L3_2)
-    for L6_2, L7_2 in L2_2, L3_2, L4_2, L5_2 do
-      L8_2 = L7_2.id
-      L8_2 = L1_2[L8_2]
-      if nil == L8_2 then
-        L8_2 = RemoveSticker
-        L9_2 = L7_2
-        L8_2(L9_2)
-        L8_2 = ActiveIdentifiers
-        L9_2 = L7_2.mapId
-        L8_2[L9_2] = false
-        L8_2 = ActiveStickers
-        L9_2 = L7_2.id
-        L8_2[L9_2] = nil
-      end
-    end
-  end
-end
-L0_1(L1_1, L2_1)
-L0_1 = RegisterNetEvent
-L1_1 = "lsrp_stickers:placeSticker"
-L0_1(L1_1)
-L0_1 = AddEventHandler
-L1_1 = "lsrp_stickers:placeSticker"
-function L2_1(A0_2, A1_2)
-  local L2_2, L3_2, L4_2, L5_2, L6_2
-  L2_2 = IsVehicleInRange
-  L3_2 = A0_2
-  L2_2 = L2_2(L3_2)
-  if L2_2 then
-    L2_2 = DoesStickerTextureExist
-    L3_2 = A1_2.name
-    L4_2 = A1_2.dict
-    L2_2 = L2_2(L3_2, L4_2)
-    if L2_2 then
-      L2_2 = NetworkGetEntityFromNetworkId
-      L3_2 = A0_2
-      L2_2 = L2_2(L3_2)
-      L3_2 = GetUsableIdentifier
-      L3_2 = L3_2()
-      if nil == L3_2 then
-        L4_2 = GetClosestVehicleToPlayer
-        L5_2 = NO_FRAMEWORK
-        if not L5_2 then
-          L5_2 = true
-          if L5_2 then
-            goto lbl_27
-          end
-        end
-        L5_2 = false
-        ::lbl_27::
-        L4_2 = L4_2(L5_2)
-        if L4_2 == L2_2 then
-          L4_2 = SelectedVehicle
-          if 0 == L4_2 then
-            L4_2 = FreeIdentifier
-            L5_2 = L2_2
-            L4_2 = L4_2(L5_2)
-            L3_2 = L4_2
-        end
+-- ============================================================
+-- Client Main
+-- Menu opening, sticker sync events, refresh loop, texture loading
+-- ============================================================
+
+-- Open menu via event or command
+if Config.Accessibility.event then
+    RegisterNetEvent('rcore_stickers:openMenu')
+    AddEventHandler('rcore_stickers:openMenu', function()
+        SelectedVehicle = 0
+        local _, _, _, _, entity = ShapeTestFromGameplayCam()
+
+        if entity ~= 0 then
+            local netId = NetworkGetNetworkIdFromEntity(entity)
+            TriggerServerEvent("lsrp_stickers:openMenu", netId)
         else
-          L4_2 = nil
-          return L4_2
+            local msg = Config.Text.ERROR_NO_ENTITY or "You are not looking at any vehicle."
+            ShowNotification(msg)
         end
-      end
-      A1_2.mapId = L3_2
-      L4_2 = ApplySticker
-      L5_2 = A1_2
-      L6_2 = 1.0
-      L4_2(L5_2, L6_2)
-      L4_2 = ActiveIdentifiers
-      L5_2 = A1_2.mapId
-      L4_2[L5_2] = true
-      L4_2 = ActiveStickers
-      L5_2 = A1_2.id
-      L4_2[L5_2] = A1_2
-    end
-  end
-end
-L0_1(L1_1, L2_1)
-L0_1 = RegisterNetEvent
-L1_1 = "lsrp_stickers:editSticker"
-L0_1(L1_1)
-L0_1 = AddEventHandler
-L1_1 = "lsrp_stickers:editSticker"
-function L2_1(A0_2, A1_2)
-  local L2_2, L3_2, L4_2
-  L2_2 = IsVehicleInRange
-  L3_2 = A0_2
-  L2_2 = L2_2(L3_2)
-  if L2_2 then
-    L2_2 = DoesStickerTextureExist
-    L3_2 = A1_2.name
-    L4_2 = A1_2.dict
-    L2_2 = L2_2(L3_2, L4_2)
-    if L2_2 then
-      L2_2 = ActiveStickers
-      L3_2 = A1_2.id
-      L2_2 = L2_2[L3_2]
-      if nil ~= L2_2 then
-        L2_2 = RemoveSticker
-        L3_2 = ActiveStickers
-        L4_2 = A1_2.id
-        L3_2 = L3_2[L4_2]
-        L2_2(L3_2)
-        L2_2 = ApplySticker
-        L3_2 = A1_2
-        L4_2 = 1.0
-        L2_2(L3_2, L4_2)
-        L2_2 = ActiveIdentifiers
-        L3_2 = A1_2.mapId
-        L2_2[L3_2] = true
-        L2_2 = ActiveStickers
-        L3_2 = A1_2.id
-        L2_2[L3_2] = A1_2
-      end
-    end
-  end
-end
-L0_1(L1_1, L2_1)
-L0_1 = RegisterNetEvent
-L1_1 = "lsrp_stickers:deleteSticker"
-L0_1(L1_1)
-L0_1 = AddEventHandler
-L1_1 = "lsrp_stickers:deleteSticker"
-function L2_1(A0_2, A1_2)
-  local L2_2, L3_2, L4_2
-  L2_2 = IsVehicleInRange
-  L3_2 = A0_2
-  L2_2 = L2_2(L3_2)
-  if L2_2 then
-    L2_2 = DoesStickerTextureExist
-    L3_2 = A1_2.name
-    L4_2 = A1_2.dict
-    L2_2 = L2_2(L3_2, L4_2)
-    if L2_2 then
-      L2_2 = ActiveStickers
-      L3_2 = A1_2.id
-      L2_2 = L2_2[L3_2]
-      if nil ~= L2_2 then
-        L2_2 = RemoveSticker
-        L3_2 = ActiveStickers
-        L4_2 = A1_2.id
-        L3_2 = L3_2[L4_2]
-        L2_2(L3_2)
-        L2_2 = ActiveIdentifiers
-        L3_2 = A1_2.mapId
-        L2_2[L3_2] = false
-        L2_2 = ActiveStickers
-        L3_2 = A1_2.id
-        L2_2[L3_2] = nil
-      end
-    end
-  end
-end
-L0_1(L1_1, L2_1)
-L0_1 = RegisterNetEvent
-L1_1 = "lsrp_stickers:deleteAllStickers"
-L0_1(L1_1)
-L0_1 = AddEventHandler
-L1_1 = "lsrp_stickers:deleteAllStickers"
-function L2_1(A0_2)
-  local L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2
-  L1_2 = pairs
-  L2_2 = ActiveStickers
-  L1_2, L2_2, L3_2, L4_2 = L1_2(L2_2)
-  for L5_2, L6_2 in L1_2, L2_2, L3_2, L4_2 do
-    L7_2 = L6_2.vehicleId
-    if L7_2 == A0_2 then
-      L7_2 = RemoveSticker
-      L8_2 = L6_2
-      L7_2(L8_2)
-      L7_2 = ActiveIdentifiers
-      L8_2 = L6_2.mapId
-      L7_2[L8_2] = false
-      L7_2 = ActiveStickers
-      L8_2 = L6_2.id
-      L7_2[L8_2] = nil
-    end
-  end
-end
-L0_1(L1_1, L2_1)
-L0_1 = RegisterNetEvent
-L1_1 = "rcore_stickers:refreshStickers"
-L0_1(L1_1)
-L0_1 = AddEventHandler
-L1_1 = "rcore_stickers:refreshStickers"
-function L2_1()
-  local L0_2, L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2
-  L0_2 = pairs
-  L1_2 = ActiveStickers
-  L0_2, L1_2, L2_2, L3_2 = L0_2(L1_2)
-  for L4_2, L5_2 in L0_2, L1_2, L2_2, L3_2 do
-    L6_2 = RemoveSticker
-    L7_2 = L5_2
-    L6_2(L7_2)
-  end
-end
-L0_1(L1_1, L2_1)
-L0_1 = RegisterCommand
-L1_1 = "refreshstickers"
-function L2_1()
-  local L0_2, L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2
-  L0_2 = pairs
-  L1_2 = ActiveStickers
-  L0_2, L1_2, L2_2, L3_2 = L0_2(L1_2)
-  for L4_2, L5_2 in L0_2, L1_2, L2_2, L3_2 do
-    L6_2 = RemoveSticker
-    L7_2 = L5_2
-    L6_2(L7_2)
-  end
-end
-L3_1 = false
-L0_1(L1_1, L2_1, L3_1)
-L0_1 = AddEventHandler
-L1_1 = "onResourceStop"
-function L2_1(A0_2)
-  local L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2
-  L1_2 = GetCurrentResourceName
-  L1_2 = L1_2()
-  if L1_2 == A0_2 then
-    L1_2 = pairs
-    L2_2 = ActiveStickers
-    L1_2, L2_2, L3_2, L4_2 = L1_2(L2_2)
-    for L5_2, L6_2 in L1_2, L2_2, L3_2, L4_2 do
-      L7_2 = RemoveSticker
-      L8_2 = L6_2
-      L7_2(L8_2)
-    end
-  end
-end
-L0_1(L1_1, L2_1)
-L0_1 = CreateThread
-function L1_1()
-  local L0_2, L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2, L15_2, L16_2, L17_2, L18_2, L19_2, L20_2, L21_2, L22_2
-  L0_2 = 0
-  L1_2 = nil
-  L2_2 = WarMenu
-  L2_2 = L2_2.CreateMenu
-  L3_2 = "STICKERS_MAIN"
-  L4_2 = Config
-  L4_2 = L4_2.Text
-  L4_2 = L4_2.MENU_MAIN_TITLE
-  if not L4_2 then
-    L4_2 = "STICKERS"
-  end
-  L5_2 = Config
-  L5_2 = L5_2.Text
-  L5_2 = L5_2.MENU_MAIN_SUBTITLE
-  if not L5_2 then
-    L5_2 = "Options"
-  end
-  L2_2(L3_2, L4_2, L5_2)
-  L2_2 = WarMenu
-  L2_2 = L2_2.CreateSubMenu
-  L3_2 = "STICKERS_CATEGORY"
-  L4_2 = "STICKERS_MAIN"
-  L5_2 = Config
-  L5_2 = L5_2.Text
-  L5_2 = L5_2.MENU_CATEGORY_SUBTITLE
-  if not L5_2 then
-    L5_2 = "Categories"
-  end
-  L2_2(L3_2, L4_2, L5_2)
-  L2_2 = WarMenu
-  L2_2 = L2_2.CreateSubMenu
-  L3_2 = "STICKERS_EDIT"
-  L4_2 = "STICKERS_MAIN"
-  L5_2 = Config
-  L5_2 = L5_2.Text
-  L5_2 = L5_2.MENU_EDIT_SUBTITLE
-  if not L5_2 then
-    L5_2 = "Existing stickers"
-  end
-  L2_2(L3_2, L4_2, L5_2)
-  L2_2 = WarMenu
-  L2_2 = L2_2.CreateSubMenu
-  L3_2 = "STICKERS_ADD"
-  L4_2 = "STICKERS_CATEGORY"
-  L2_2(L3_2, L4_2)
-  while true do
-    L2_2 = Wait
-    L3_2 = 0
-    L2_2(L3_2)
-    L2_2 = WarMenu
-    L2_2 = L2_2.IsAnyMenuOpened
-    L2_2 = L2_2()
-    if not L2_2 then
-      L2_2 = Wait
-      L3_2 = 500
-      L2_2(L3_2)
-    end
-    L2_2 = WarMenu
-    L2_2 = L2_2.Begin
-    L3_2 = "STICKERS_MAIN"
-    L2_2 = L2_2(L3_2)
-    if L2_2 then
-      L2_2 = WarMenu
-      L2_2 = L2_2.MenuButton
-      L3_2 = Config
-      L3_2 = L3_2.Text
-      L3_2 = L3_2.MENU_BUTTON_ADD
-      if not L3_2 then
-        L3_2 = "Add"
-      end
-      L4_2 = "STICKERS_CATEGORY"
-      L2_2(L3_2, L4_2)
-      L2_2 = WarMenu
-      L2_2 = L2_2.MenuButton
-      L3_2 = Config
-      L3_2 = L3_2.Text
-      L3_2 = L3_2.MENU_BUTTON_EDIT
-      if not L3_2 then
-        L3_2 = "Edit"
-      end
-      L4_2 = "STICKERS_EDIT"
-      L2_2(L3_2, L4_2)
-      L2_2 = WarMenu
-      L2_2 = L2_2.End
-      L2_2()
-    end
-    L2_2 = WarMenu
-    L2_2 = L2_2.Begin
-    L3_2 = "STICKERS_CATEGORY"
-    L2_2 = L2_2(L3_2)
-    if L2_2 then
-      L2_2 = ErrorMsgAdd
-      if "" ~= L2_2 then
-        L2_2 = WarMenu
-        L2_2 = L2_2.ToolTip
-        L3_2 = ErrorMsgAdd
-        L2_2(L3_2)
-      else
-        L2_2 = 1
-        L3_2 = Config
-        L3_2 = L3_2.Stickers
-        L3_2 = #L3_2
-        L4_2 = 1
-        for L5_2 = L2_2, L3_2, L4_2 do
-          L6_2 = WarMenu
-          L6_2 = L6_2.MenuButton
-          L7_2 = Config
-          L7_2 = L7_2.Stickers
-          L7_2 = L7_2[L5_2]
-          L7_2 = L7_2.category
-          L8_2 = "STICKERS_ADD"
-          L6_2 = L6_2(L7_2, L8_2)
-          if L6_2 then
-            L6_2 = WarMenu
-            L6_2 = L6_2.SetSubTitle
-            L7_2 = "STICKERS_ADD"
-            L8_2 = Config
-            L8_2 = L8_2.Stickers
-            L8_2 = L8_2[L5_2]
-            L8_2 = L8_2.category
-            L6_2(L7_2, L8_2)
-            L6_2 = Config
-            L6_2 = L6_2.Stickers
-            L6_2 = L6_2[L5_2]
-            L1_2 = L6_2.stickers
-          end
+    end)
+else
+    RegisterCommand("stickers", function()
+        SelectedVehicle = 0
+        local _, _, _, _, entity = ShapeTestFromGameplayCam()
+
+        if entity ~= 0 then
+            local netId = NetworkGetNetworkIdFromEntity(entity)
+            TriggerServerEvent("lsrp_stickers:openMenu", netId)
+        else
+            local msg = Config.Text.ERROR_NO_ENTITY or "You are not looking at any vehicle."
+            ShowNotification(msg)
         end
-      end
-      L2_2 = WarMenu
-      L2_2 = L2_2.End
-      L2_2()
+    end, false)
+end
+
+-- Server tells us to open the menu
+RegisterNetEvent('lsrp_stickers:openMenu')
+AddEventHandler('lsrp_stickers:openMenu', function(vehicleNetId, errorAdd, errorEdit)
+    SelectedVehicle = vehicleNetId
+    ErrorMsgAdd = errorAdd
+    ErrorMsgEdit = errorEdit
+    WarMenu.OpenMenu("STICKERS_MAIN")
+end)
+
+-- Server sends sticker data for nearby vehicles (periodic refresh)
+RegisterNetEvent('lsrp_stickers:refreshStickers')
+AddEventHandler('lsrp_stickers:refreshStickers', function(stickersData)
+    -- If empty data, remove all active stickers
+    if next(stickersData) == nil then
+        for _, sticker in pairs(ActiveStickers) do
+            RemoveSticker(sticker)
+            ActiveIdentifiers[sticker.mapId] = false
+            ActiveStickers[sticker.id] = nil
+        end
+        return
     end
-    L2_2 = WarMenu
-    L2_2 = L2_2.Begin
-    L3_2 = "STICKERS_ADD"
-    L2_2 = L2_2(L3_2)
-    if L2_2 then
-      L2_2 = 1
-      L3_2 = #L1_2
-      L4_2 = 1
-      for L5_2 = L2_2, L3_2, L4_2 do
-        L6_2 = L1_2[L5_2]
-        L6_2 = L6_2.name
-        L7_2 = L1_2[L5_2]
-        L7_2 = L7_2.price
-        L8_2 = L1_2[L5_2]
-        L8_2 = L8_2.dict
-        L9_2 = DoesStickerTextureExist
-        L10_2 = L6_2
-        L11_2 = L8_2
-        L9_2 = L9_2(L10_2, L11_2)
-        if L9_2 then
-          L9_2 = NO_FRAMEWORK
-          if L9_2 then
-            L9_2 = WarMenu
-            L9_2 = L9_2.Button
-            L10_2 = L6_2
-            L9_2(L10_2)
-          elseif L7_2 > 0 then
-            L9_2 = WarMenu
-            L9_2 = L9_2.Button
-            L10_2 = L6_2
-            L11_2 = Config
-            L11_2 = L11_2.Text
-            L11_2 = L11_2.MENU_BUTTON_PRICE
-            if not L11_2 then
-              L11_2 = "~g~$%s"
-            end
-            L12_2 = L11_2
-            L11_2 = L11_2.format
-            L13_2 = L7_2
-            L11_2, L12_2, L13_2, L14_2, L15_2, L16_2, L17_2, L18_2, L19_2, L20_2, L21_2, L22_2 = L11_2(L12_2, L13_2)
-            L9_2(L10_2, L11_2, L12_2, L13_2, L14_2, L15_2, L16_2, L17_2, L18_2, L19_2, L20_2, L21_2, L22_2)
-          else
-            L9_2 = WarMenu
-            L9_2 = L9_2.Button
-            L10_2 = L6_2
-            L11_2 = Config
-            L11_2 = L11_2.Text
-            L11_2 = L11_2.MENU_BUTTON_FREE
-            if not L11_2 then
-              L11_2 = "~g~FREE"
-            end
-            L9_2(L10_2, L11_2)
-          end
-          L9_2 = WarMenu
-          L9_2 = L9_2.IsItemHovered
-          L9_2 = L9_2()
-          if L9_2 then
-            L9_2 = GetStickerResolution
-            L10_2 = L6_2
-            L11_2 = L8_2
-            L12_2 = 0.5
-            L9_2, L10_2 = L9_2(L10_2, L11_2, L12_2)
-            L11_2 = DrawSprite
-            L12_2 = L8_2
-            L13_2 = L6_2
-            L14_2 = 0.5
-            L15_2 = 0.5
-            L16_2 = L9_2
-            L17_2 = L10_2
-            L18_2 = 0.0
-            L19_2 = 255
-            L20_2 = 255
-            L21_2 = 255
-            L22_2 = 255
-            L11_2(L12_2, L13_2, L14_2, L15_2, L16_2, L17_2, L18_2, L19_2, L20_2, L21_2, L22_2)
-          end
-          L9_2 = WarMenu
-          L9_2 = L9_2.IsItemSelected
-          L9_2 = L9_2()
-          if L9_2 then
-            L9_2 = NetworkGetEntityFromNetworkId
-            L10_2 = SelectedVehicle
-            L9_2 = L9_2(L10_2)
-            L10_2 = GetUsableIdentifier
-            L10_2 = L10_2()
-            if nil == L10_2 then
-              L11_2 = FreeIdentifier
-              L12_2 = L9_2
-              L11_2 = L11_2(L12_2)
-              L10_2 = L11_2
-            end
-            L11_2 = ActiveIdentifiers
-            L11_2[L10_2] = true
-            L11_2 = StartEditor
-            L12_2 = L10_2
-            L13_2 = L6_2
-            L14_2 = nil
-            L15_2 = L9_2
-            function L16_2(A0_3)
-              local L1_3, L2_3, L3_3, L4_3, L5_3, L6_3, L7_3, L8_3
-              if nil ~= A0_3 then
-                L1_3 = 1
-                L2_3 = #A0_3
-                L3_3 = 1
-                for L4_3 = L1_3, L2_3, L3_3 do
-                  L5_3 = ActiveIdentifiers
-                  L6_3 = A0_3[L4_3]
-                  L6_3 = L6_3.mapId
-                  L5_3[L6_3] = false
-                  L5_3 = TriggerServerEvent
-                  L6_3 = "lsrp_stickers:placeSticker"
-                  L7_3 = SelectedVehicle
-                  L8_3 = A0_3[L4_3]
-                  L5_3(L6_3, L7_3, L8_3)
+
+    -- Track which sticker IDs are still valid
+    local validIds = {}
+
+    for vehicleNetId, stickerList in pairs(stickersData) do
+        local closestVehicle = GetClosestVehicleToPlayer(not NO_FRAMEWORK)
+
+        for _, stickerInfo in ipairs(stickerList) do
+            if DoesStickerTextureExist(stickerInfo.name, stickerInfo.dict) then
+                validIds[stickerInfo.id] = stickerInfo
+
+                local existing = ActiveStickers[stickerInfo.id]
+
+                if existing == nil then
+                    -- New sticker - try to apply it
+                    local vehicle = NetworkGetEntityFromNetworkId(vehicleNetId)
+                    local identifier = GetUsableIdentifier()
+
+                    if identifier == nil then
+                        -- No free identifier, try to free one from the closest vehicle
+                        if closestVehicle == vehicle and SelectedVehicle == 0 then
+                            identifier = FreeIdentifier(vehicle)
+                        end
+                    end
+
+                    if identifier then
+                        stickerInfo.mapId = identifier
+                        ApplySticker(stickerInfo, 1.0)
+                        ActiveIdentifiers[stickerInfo.mapId] = true
+                        ActiveStickers[stickerInfo.id] = stickerInfo
+                    end
+                else
+                    -- Existing sticker - check if it's still alive, re-apply if not
+                    if not IsDecalAlive(existing.handle) then
+                        ApplySticker(existing, 1.0)
+                    end
                 end
-              end
-              SelectedVehicle = 0
             end
-            L11_2(L12_2, L13_2, L14_2, L15_2, L16_2)
-            L11_2 = WarMenu
-            L11_2 = L11_2.CloseMenu
-            L11_2()
-          end
         end
-      end
-      L2_2 = WarMenu
-      L2_2 = L2_2.End
-      L2_2()
     end
-    L2_2 = WarMenu
-    L2_2 = L2_2.Begin
-    L3_2 = "STICKERS_EDIT"
-    L2_2 = L2_2(L3_2)
-    if L2_2 then
-      L2_2 = ErrorMsgEdit
-      if "" ~= L2_2 then
-        L2_2 = WarMenu
-        L2_2 = L2_2.ToolTip
-        L3_2 = ErrorMsgEdit
-        L2_2(L3_2)
-      else
-        L2_2 = pairs
-        L3_2 = ActiveStickers
-        L2_2, L3_2, L4_2, L5_2 = L2_2(L3_2)
-        for L6_2, L7_2 in L2_2, L3_2, L4_2, L5_2 do
-          L8_2 = L7_2.vehicleId
-          L9_2 = SelectedVehicle
-          if L8_2 == L9_2 then
-            L8_2 = WarMenu
-            L8_2 = L8_2.Button
-            L9_2 = L7_2.name
-            L8_2(L9_2)
-            L8_2 = WarMenu
-            L8_2 = L8_2.IsItemHovered
-            L8_2 = L8_2()
-            if L8_2 and L6_2 ~= L0_2 then
-              if 0 ~= L0_2 then
-                L8_2 = ActiveStickers
-                L8_2 = L8_2[L0_2]
-                L9_2 = RemoveSticker
-                L10_2 = L8_2
-                L9_2(L10_2)
-                L9_2 = ApplySticker
-                L10_2 = L8_2
-                L11_2 = 1.0
-                L9_2(L10_2, L11_2)
-              end
-              L8_2 = RemoveSticker
-              L9_2 = L7_2
-              L8_2(L9_2)
-              L8_2 = ApplySticker
-              L9_2 = L7_2
-              L10_2 = 0.3
-              L8_2(L9_2, L10_2)
-              L0_2 = L6_2
-            end
-            L8_2 = WarMenu
-            L8_2 = L8_2.IsItemSelected
-            L8_2 = L8_2()
-            if L8_2 then
-              L8_2 = RemoveSticker
-              L9_2 = L7_2
-              L8_2(L9_2)
-              L8_2 = ApplySticker
-              L9_2 = L7_2
-              L10_2 = 1.0
-              L8_2(L9_2, L10_2)
-              L8_2 = StartEditor
-              L9_2 = L7_2.mapId
-              L10_2 = L7_2.name
-              L11_2 = L7_2
-              L12_2 = NetworkGetEntityFromNetworkId
-              L13_2 = SelectedVehicle
-              L12_2 = L12_2(L13_2)
-              function L13_2(A0_3)
-                local L1_3, L2_3, L3_3, L4_3
-                if A0_3 then
-                  L1_3 = next
-                  L2_3 = A0_3
-                  L1_3 = L1_3(L2_3)
-                  if L1_3 then
-                    L1_3 = TriggerServerEvent
-                    L2_3 = "lsrp_stickers:editSticker"
-                    L3_3 = SelectedVehicle
-                    L4_3 = A0_3[1]
-                    L1_3(L2_3, L3_3, L4_3)
-                  else
-                    L1_3 = TriggerServerEvent
-                    L2_3 = "lsrp_stickers:deleteSticker"
-                    L3_3 = SelectedVehicle
-                    L4_3 = L7_2
-                    L1_3(L2_3, L3_3, L4_3)
-                  end
+
+    -- Remove stickers that are no longer in the server data
+    for id, sticker in pairs(ActiveStickers) do
+        if validIds[id] == nil then
+            RemoveSticker(sticker)
+            ActiveIdentifiers[sticker.mapId] = false
+            ActiveStickers[id] = nil
+        end
+    end
+end)
+
+-- A new sticker was placed (broadcast to all clients)
+RegisterNetEvent('lsrp_stickers:placeSticker')
+AddEventHandler('lsrp_stickers:placeSticker', function(vehicleNetId, stickerData)
+    if not IsVehicleInRange(vehicleNetId) then return end
+    if not DoesStickerTextureExist(stickerData.name, stickerData.dict) then return end
+
+    local vehicle = NetworkGetEntityFromNetworkId(vehicleNetId)
+    local identifier = GetUsableIdentifier()
+
+    if identifier == nil then
+        local closestVehicle = GetClosestVehicleToPlayer(not NO_FRAMEWORK)
+        if closestVehicle == vehicle and SelectedVehicle == 0 then
+            identifier = FreeIdentifier(vehicle)
+        else
+            return
+        end
+    end
+
+    if identifier then
+        stickerData.mapId = identifier
+        ApplySticker(stickerData, 1.0)
+        ActiveIdentifiers[stickerData.mapId] = true
+        ActiveStickers[stickerData.id] = stickerData
+    end
+end)
+
+-- A sticker was edited (broadcast to all clients)
+RegisterNetEvent('lsrp_stickers:editSticker')
+AddEventHandler('lsrp_stickers:editSticker', function(vehicleNetId, stickerData)
+    if not IsVehicleInRange(vehicleNetId) then return end
+    if not DoesStickerTextureExist(stickerData.name, stickerData.dict) then return end
+
+    local existing = ActiveStickers[stickerData.id]
+    if existing ~= nil then
+        RemoveSticker(existing)
+        ApplySticker(stickerData, 1.0)
+        ActiveIdentifiers[stickerData.mapId] = true
+        ActiveStickers[stickerData.id] = stickerData
+    end
+end)
+
+-- A sticker was deleted (broadcast to all clients)
+RegisterNetEvent('lsrp_stickers:deleteSticker')
+AddEventHandler('lsrp_stickers:deleteSticker', function(vehicleNetId, stickerData)
+    if not IsVehicleInRange(vehicleNetId) then return end
+    if not DoesStickerTextureExist(stickerData.name, stickerData.dict) then return end
+
+    local existing = ActiveStickers[stickerData.id]
+    if existing ~= nil then
+        RemoveSticker(existing)
+        ActiveIdentifiers[existing.mapId] = false
+        ActiveStickers[stickerData.id] = nil
+    end
+end)
+
+-- All stickers on a vehicle were deleted (vehicle despawned on server)
+RegisterNetEvent('lsrp_stickers:deleteAllStickers')
+AddEventHandler('lsrp_stickers:deleteAllStickers', function(vehicleNetId)
+    for id, sticker in pairs(ActiveStickers) do
+        if sticker.vehicleId == vehicleNetId then
+            RemoveSticker(sticker)
+            ActiveIdentifiers[sticker.mapId] = false
+            ActiveStickers[id] = nil
+        end
+    end
+end)
+
+-- Manual refresh command: removes all active sticker decals
+RegisterNetEvent('rcore_stickers:refreshStickers')
+AddEventHandler('rcore_stickers:refreshStickers', function()
+    for _, sticker in pairs(ActiveStickers) do
+        RemoveSticker(sticker)
+    end
+end)
+
+RegisterCommand("refreshstickers", function()
+    for _, sticker in pairs(ActiveStickers) do
+        RemoveSticker(sticker)
+    end
+end, false)
+
+-- Cleanup on resource stop
+AddEventHandler('onResourceStop', function(resourceName)
+    if GetCurrentResourceName() == resourceName then
+        for _, sticker in pairs(ActiveStickers) do
+            RemoveSticker(sticker)
+        end
+    end
+end)
+
+-- ============================================================
+-- Main Menu Thread
+-- ============================================================
+CreateThread(function()
+    local hoveredStickerId = 0
+    local selectedStickers = nil
+
+    -- Create menus
+    WarMenu.CreateMenu("STICKERS_MAIN", Config.Text.MENU_MAIN_TITLE or "STICKERS", Config.Text.MENU_MAIN_SUBTITLE or "Options")
+    WarMenu.CreateSubMenu("STICKERS_CATEGORY", "STICKERS_MAIN", Config.Text.MENU_CATEGORY_SUBTITLE or "Categories")
+    WarMenu.CreateSubMenu("STICKERS_EDIT", "STICKERS_MAIN", Config.Text.MENU_EDIT_SUBTITLE or "Existing stickers")
+    WarMenu.CreateSubMenu("STICKERS_ADD", "STICKERS_CATEGORY")
+
+    while true do
+        Wait(0)
+
+        if not WarMenu.IsAnyMenuOpened() then
+            Wait(500)
+        end
+
+        -- Main menu
+        if WarMenu.Begin("STICKERS_MAIN") then
+            WarMenu.MenuButton(Config.Text.MENU_BUTTON_ADD or "Add", "STICKERS_CATEGORY")
+            WarMenu.MenuButton(Config.Text.MENU_BUTTON_EDIT or "Edit", "STICKERS_EDIT")
+            WarMenu.End()
+        end
+
+        -- Category selection menu
+        if WarMenu.Begin("STICKERS_CATEGORY") then
+            if ErrorMsgAdd ~= "" then
+                WarMenu.ToolTip(ErrorMsgAdd)
+            else
+                for i, categoryData in ipairs(Config.Stickers) do
+                    if WarMenu.MenuButton(categoryData.category, "STICKERS_ADD") then
+                        WarMenu.SetSubTitle("STICKERS_ADD", categoryData.category)
+                        selectedStickers = categoryData.stickers
+                    end
                 end
-                SelectedVehicle = 0
-              end
-              L8_2(L9_2, L10_2, L11_2, L12_2, L13_2)
-              L0_2 = 0
-              L8_2 = WarMenu
-              L8_2 = L8_2.CloseMenu
-              L8_2()
             end
-          end
+            WarMenu.End()
         end
-      end
-      L2_2 = WarMenu
-      L2_2 = L2_2.End
-      L2_2()
-    elseif 0 ~= L0_2 then
-      L2_2 = ActiveStickers
-      L2_2 = L2_2[L0_2]
-      L0_2 = 0
-      L3_2 = RemoveSticker
-      L4_2 = L2_2
-      L3_2(L4_2)
-      L3_2 = ApplySticker
-      L4_2 = L2_2
-      L5_2 = 1.0
-      L3_2(L4_2, L5_2)
-    end
-  end
-end
-L0_1(L1_1)
-L0_1 = CreateThread
-function L1_1()
-  local L0_2, L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2
-  L0_2 = {}
-  L1_2 = 1
-  L2_2 = Config
-  L2_2 = L2_2.Stickers
-  L2_2 = #L2_2
-  L3_2 = 1
-  for L4_2 = L1_2, L2_2, L3_2 do
-    L5_2 = 1
-    L6_2 = Config
-    L6_2 = L6_2.Stickers
-    L6_2 = L6_2[L4_2]
-    L6_2 = L6_2.stickers
-    L6_2 = #L6_2
-    L7_2 = 1
-    for L8_2 = L5_2, L6_2, L7_2 do
-      L9_2 = Config
-      L9_2 = L9_2.Stickers
-      L9_2 = L9_2[L4_2]
-      L9_2 = L9_2.stickers
-      L9_2 = L9_2[L8_2]
-      L9_2 = L9_2.dict
-      if L9_2 then
-        L10_2 = L0_2[L9_2]
-        if nil == L10_2 then
-          L10_2 = RequestStreamedTextureDict
-          L11_2 = L9_2
-          L12_2 = 0
-          L10_2(L11_2, L12_2)
-          repeat
-            L10_2 = Wait
-            L11_2 = 0
-            L10_2(L11_2)
-            L10_2 = HasStreamedTextureDictLoaded
-            L11_2 = L9_2
-            L10_2 = L10_2(L11_2)
-          until L10_2
-          L0_2[L9_2] = true
+
+        -- Add sticker menu (shows stickers from selected category)
+        if WarMenu.Begin("STICKERS_ADD") then
+            if selectedStickers then
+                for i, sticker in ipairs(selectedStickers) do
+                    local name = sticker.name
+                    local price = sticker.price
+                    local dict = sticker.dict
+
+                    if DoesStickerTextureExist(name, dict) then
+                        -- Show button with price
+                        if NO_FRAMEWORK then
+                            WarMenu.Button(name)
+                        elseif price > 0 then
+                            local priceText = (Config.Text.MENU_BUTTON_PRICE or "~g~$%s"):format(price)
+                            WarMenu.Button(name, priceText)
+                        else
+                            WarMenu.Button(name, Config.Text.MENU_BUTTON_FREE or "~g~FREE")
+                        end
+
+                        -- Preview on hover
+                        if WarMenu.IsItemHovered() then
+                            local w, h = GetStickerResolution(name, dict, 0.5)
+                            DrawSprite(dict, name, 0.5, 0.5, w, h, 0.0, 255, 255, 255, 255)
+                        end
+
+                        -- Start editor on select
+                        if WarMenu.IsItemSelected() then
+                            local vehicle = NetworkGetEntityFromNetworkId(SelectedVehicle)
+                            local identifier = GetUsableIdentifier()
+
+                            if identifier == nil then
+                                identifier = FreeIdentifier(vehicle)
+                            end
+
+                            ActiveIdentifiers[identifier] = true
+
+                            StartEditor(identifier, name, nil, vehicle, function(result)
+                                if result ~= nil then
+                                    for _, stickerResult in ipairs(result) do
+                                        ActiveIdentifiers[stickerResult.mapId] = false
+                                        TriggerServerEvent("lsrp_stickers:placeSticker", SelectedVehicle, stickerResult)
+                                    end
+                                end
+                                SelectedVehicle = 0
+                            end)
+
+                            WarMenu.CloseMenu()
+                        end
+                    end
+                end
+            end
+            WarMenu.End()
         end
-      end
+
+        -- Edit existing stickers menu
+        if WarMenu.Begin("STICKERS_EDIT") then
+            if ErrorMsgEdit ~= "" then
+                WarMenu.ToolTip(ErrorMsgEdit)
+            else
+                for id, sticker in pairs(ActiveStickers) do
+                    if sticker.vehicleId == SelectedVehicle then
+                        WarMenu.Button(sticker.name)
+
+                        -- Highlight hovered sticker (make it semi-transparent)
+                        if WarMenu.IsItemHovered() and id ~= hoveredStickerId then
+                            -- Restore previous hovered sticker
+                            if hoveredStickerId ~= 0 then
+                                local prev = ActiveStickers[hoveredStickerId]
+                                if prev then
+                                    RemoveSticker(prev)
+                                    ApplySticker(prev, 1.0)
+                                end
+                            end
+
+                            -- Make current sticker semi-transparent
+                            RemoveSticker(sticker)
+                            ApplySticker(sticker, 0.3)
+                            hoveredStickerId = id
+                        end
+
+                        -- Open editor on select
+                        if WarMenu.IsItemSelected() then
+                            RemoveSticker(sticker)
+                            ApplySticker(sticker, 1.0)
+
+                            local vehicle = NetworkGetEntityFromNetworkId(SelectedVehicle)
+
+                            StartEditor(sticker.mapId, sticker.name, sticker, vehicle, function(result)
+                                if result then
+                                    if next(result) then
+                                        -- Edited
+                                        TriggerServerEvent("lsrp_stickers:editSticker", SelectedVehicle, result[1])
+                                    else
+                                        -- Deleted (empty table)
+                                        TriggerServerEvent("lsrp_stickers:deleteSticker", SelectedVehicle, sticker)
+                                    end
+                                end
+                                SelectedVehicle = 0
+                            end)
+
+                            hoveredStickerId = 0
+                            WarMenu.CloseMenu()
+                        end
+                    end
+                end
+            end
+            WarMenu.End()
+        elseif hoveredStickerId ~= 0 then
+            -- Restore sticker when leaving edit menu
+            local prev = ActiveStickers[hoveredStickerId]
+            if prev then
+                hoveredStickerId = 0
+                RemoveSticker(prev)
+                ApplySticker(prev, 1.0)
+            end
+        end
     end
-  end
-end
-L0_1(L1_1)
+end)
+
+-- ============================================================
+-- Texture Dictionary Loading Thread
+-- ============================================================
+CreateThread(function()
+    local loadedDicts = {}
+
+    for _, category in ipairs(Config.Stickers) do
+        for _, sticker in ipairs(category.stickers) do
+            local dict = sticker.dict
+            if dict and not loadedDicts[dict] then
+                RequestStreamedTextureDict(dict, 0)
+                repeat
+                    Wait(0)
+                until HasStreamedTextureDictLoaded(dict)
+                loadedDicts[dict] = true
+            end
+        end
+    end
+end)

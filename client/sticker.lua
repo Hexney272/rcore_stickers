@@ -1,185 +1,113 @@
-local L0_1, L1_1
-function L0_1(A0_2, A1_2, A2_2, A3_2, A4_2, A5_2, A6_2, A7_2)
-  local L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2, L15_2, L16_2, L17_2, L18_2, L19_2, L20_2, L21_2, L22_2, L23_2, L24_2, L25_2, L26_2, L27_2, L28_2, L29_2, L30_2, L31_2, L32_2, L33_2
-  L8_2 = GetEntityForwardVector
-  L9_2 = A7_2
-  L8_2 = L8_2(L9_2)
-  L9_2 = A1_2.x
-  L10_2 = A1_2.x
-  L9_2 = L9_2 * L10_2
-  L10_2 = A1_2.y
-  L11_2 = A1_2.y
-  L10_2 = L10_2 * L11_2
-  L9_2 = L9_2 + L10_2
-  L10_2 = A1_2.z
-  L11_2 = A1_2.z
-  L10_2 = L10_2 * L11_2
-  L9_2 = L9_2 + L10_2
-  L10_2 = L8_2.x
-  L11_2 = A1_2.x
-  L10_2 = L10_2 * L11_2
-  L11_2 = L8_2.y
-  L12_2 = A1_2.y
-  L11_2 = L11_2 * L12_2
-  L10_2 = L10_2 + L11_2
-  L11_2 = L8_2.z
-  L12_2 = A1_2.z
-  L11_2 = L11_2 * L12_2
-  L10_2 = L10_2 + L11_2
-  L11_2 = L10_2 / L9_2
-  L11_2 = A1_2 * L11_2
-  L11_2 = -L11_2
-  L11_2 = L11_2 + L8_2
-  L12_2 = quat
-  L13_2 = A2_2
-  L14_2 = A1_2
-  L12_2 = L12_2(L13_2, L14_2)
-  L12_2 = L12_2 * L11_2
-  L13_2 = AddDecal
-  L14_2 = A6_2
-  L15_2 = A0_2.x
-  L16_2 = A0_2.y
-  L17_2 = A0_2.z
-  L18_2 = A1_2.x
-  L19_2 = A1_2.y
-  L20_2 = A1_2.z
-  L21_2 = L12_2.x
-  L22_2 = L12_2.y
-  L23_2 = L12_2.z
-  L24_2 = A3_2
-  L25_2 = A4_2
-  L26_2 = 1.0
-  L27_2 = 1.0
-  L28_2 = 1.0
-  L29_2 = A5_2
-  L30_2 = math
-  L30_2 = L30_2.maxinteger
-  L30_2 = L30_2 + 0.0
-  L31_2 = 1
-  L32_2 = 0
-  L33_2 = true
-  return L13_2(L14_2, L15_2, L16_2, L17_2, L18_2, L19_2, L20_2, L21_2, L22_2, L23_2, L24_2, L25_2, L26_2, L27_2, L28_2, L29_2, L30_2, L31_2, L32_2, L33_2)
+-- ============================================================
+-- Client Sticker Functions
+-- Core sticker rendering: add, apply, remove, resolution, config lookup
+-- ============================================================
+
+--- Adds a decal (sticker) to the game world on a vehicle surface
+---@param position vector3 World position of the decal
+---@param normal vector3 Surface normal (negated for correct orientation)
+---@param rotation number Rotation angle in degrees
+---@param width number Decal width
+---@param height number Decal height
+---@param opacity number Decal opacity (0.0 - 1.0)
+---@param mapId number Decal diffuse map identifier
+---@param vehicle number Vehicle entity handle (used for forward vector calculation)
+---@return number Decal handle
+function AddSticker(position, normal, rotation, width, height, opacity, mapId, vehicle)
+    local forward = GetEntityForwardVector(vehicle)
+
+    -- Calculate the dot product of normal with itself (magnitude squared)
+    local normalDotNormal = normal.x * normal.x + normal.y * normal.y + normal.z * normal.z
+
+    -- Project forward vector onto the plane defined by the normal
+    local forwardDotNormal = forward.x * normal.x + forward.y * normal.y + forward.z * normal.z
+    local projScale = forwardDotNormal / normalDotNormal
+    local projected = -normal * projScale
+    local tangent = projected + forward
+
+    -- Apply rotation quaternion around the normal axis
+    local rotQuat = quat(rotation, normal)
+    local rotatedTangent = rotQuat * tangent
+
+    return AddDecal(
+        mapId,                  -- decal type / texture identifier
+        position.x, position.y, position.z,
+        normal.x, normal.y, normal.z,
+        rotatedTangent.x, rotatedTangent.y, rotatedTangent.z,
+        width, height,
+        1.0, 1.0, 1.0,         -- RGB color (white = no tint)
+        opacity,
+        math.maxinteger + 0.0,  -- timeout (effectively infinite)
+        1,                      -- unknown flag
+        0,                      -- unknown flag
+        true                    -- is on entity
+    )
 end
-AddSticker = L0_1
-function L0_1(A0_2, A1_2)
-  local L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2, L15_2
-  L2_2 = NetworkGetEntityFromNetworkId
-  L3_2 = A0_2.vehicleId
-  L2_2 = L2_2(L3_2)
-  L3_2 = GetStickerResolution
-  L4_2 = A0_2.name
-  L5_2 = A0_2.dict
-  L6_2 = A0_2.scale
-  L3_2, L4_2 = L3_2(L4_2, L5_2, L6_2)
-  L5_2 = GetSurfaceNormalFromRelativeCoords
-  L6_2 = A0_2.rFrom
-  L7_2 = A0_2.rTo
-  L8_2 = L2_2
-  L5_2, L6_2 = L5_2(L6_2, L7_2, L8_2)
-  L7_2 = PatchDecalDiffuseMap
-  L8_2 = A0_2.mapId
-  L9_2 = A0_2.dict
-  L10_2 = A0_2.name
-  L7_2(L8_2, L9_2, L10_2)
-  L7_2 = AddSticker
-  L8_2 = L5_2
-  L9_2 = -L6_2
-  L10_2 = A0_2.rot
-  L11_2 = L3_2
-  L12_2 = L4_2
-  L13_2 = A1_2
-  L14_2 = A0_2.mapId
-  L15_2 = L2_2
-  L7_2 = L7_2(L8_2, L9_2, L10_2, L11_2, L12_2, L13_2, L14_2, L15_2)
-  A0_2.handle = L7_2
+
+--- Applies a sticker to a vehicle using stored sticker data
+---@param stickerData table Sticker data table with rFrom, rTo, vehicleId, name, dict, scale, rot, mapId
+---@param opacity number Opacity (0.0 - 1.0)
+function ApplySticker(stickerData, opacity)
+    local vehicle = NetworkGetEntityFromNetworkId(stickerData.vehicleId)
+
+    local width, height = GetStickerResolution(stickerData.name, stickerData.dict, stickerData.scale)
+    local hitPos, surfaceNormal = GetSurfaceNormalFromRelativeCoords(stickerData.rFrom, stickerData.rTo, vehicle)
+
+    PatchDecalDiffuseMap(stickerData.mapId, stickerData.dict, stickerData.name)
+
+    local handle = AddSticker(hitPos, -surfaceNormal, stickerData.rot, width, height, opacity, stickerData.mapId, vehicle)
+    stickerData.handle = handle
 end
-ApplySticker = L0_1
-function L0_1(A0_2)
-  local L1_2, L2_2, L3_2
-  L1_2 = A0_2.handle
-  L2_2 = IsDecalAlive
-  L3_2 = L1_2
-  L2_2 = L2_2(L3_2)
-  if L2_2 then
-    L2_2 = CreateThread
-    function L3_2()
-      local L0_3, L1_3
-      repeat
-        L0_3 = RemoveDecal
-        L1_3 = L1_2
-        L0_3(L1_3)
-        L0_3 = Wait
-        L1_3 = 0
-        L0_3(L1_3)
-        L0_3 = IsDecalAlive
-        L1_3 = L1_2
-        L0_3 = L0_3(L1_3)
-      until 1 ~= L0_3
+
+--- Removes a sticker (decal) from the world
+--- Uses a thread to ensure removal even if the decal persists across frames
+---@param stickerData table Sticker data table with handle field
+function RemoveSticker(stickerData)
+    local handle = stickerData.handle
+
+    if IsDecalAlive(handle) then
+        CreateThread(function()
+            repeat
+                RemoveDecal(handle)
+                Wait(0)
+            until not IsDecalAlive(handle)
+        end)
     end
-    L2_2(L3_2)
-  end
 end
-RemoveSticker = L0_1
-function L0_1(A0_2, A1_2)
-  local L2_2, L3_2, L4_2
-  L2_2 = GetTextureResolution
-  L3_2 = A1_2
-  L4_2 = A0_2
-  L2_2 = L2_2(L3_2, L4_2)
-  L3_2 = #L2_2
-  L3_2 = L3_2 > 10.0
-  return L3_2
+
+--- Checks if a sticker texture exists in the given texture dictionary
+---@param name string Texture name
+---@param dict string Texture dictionary name
+---@return boolean True if texture exists (resolution vector length > 10)
+function DoesStickerTextureExist(name, dict)
+    local resolution = GetTextureResolution(dict, name)
+    return #resolution > 10.0
 end
-DoesStickerTextureExist = L0_1
-function L0_1(A0_2, A1_2, A2_2)
-  local L3_2, L4_2, L5_2, L6_2
-  L3_2 = GetTextureResolution
-  L4_2 = A1_2
-  L5_2 = A0_2
-  L3_2 = L3_2(L4_2, L5_2)
-  L4_2 = L3_2.x
-  L5_2 = L3_2.y
-  L4_2 = L4_2 + L5_2
-  L5_2 = L3_2.x
-  L5_2 = L5_2 / L4_2
-  L5_2 = L5_2 * A2_2
-  L6_2 = L3_2.y
-  L6_2 = L6_2 / L4_2
-  L6_2 = L6_2 * A2_2
-  return L5_2, L6_2
+
+--- Calculates the scaled resolution (width/height) for a sticker
+---@param name string Texture name
+---@param dict string Texture dictionary name
+---@param scale number Scale multiplier
+---@return number width Scaled width
+---@return number height Scaled height
+function GetStickerResolution(name, dict, scale)
+    local resolution = GetTextureResolution(dict, name)
+    local total = resolution.x + resolution.y
+    local width = (resolution.x / total) * scale
+    local height = (resolution.y / total) * scale
+    return width, height
 end
-GetStickerResolution = L0_1
-function L0_1(A0_2)
-  local L1_2, L2_2, L3_2, L4_2, L5_2, L6_2, L7_2, L8_2, L9_2, L10_2
-  L1_2 = 1
-  L2_2 = Config
-  L2_2 = L2_2.Stickers
-  L2_2 = #L2_2
-  L3_2 = 1
-  for L4_2 = L1_2, L2_2, L3_2 do
-    L5_2 = 1
-    L6_2 = Config
-    L6_2 = L6_2.Stickers
-    L6_2 = L6_2[L4_2]
-    L6_2 = L6_2.stickers
-    L6_2 = #L6_2
-    L7_2 = 1
-    for L8_2 = L5_2, L6_2, L7_2 do
-      L9_2 = Config
-      L9_2 = L9_2.Stickers
-      L9_2 = L9_2[L4_2]
-      L9_2 = L9_2.stickers
-      L9_2 = L9_2[L8_2]
-      L10_2 = L9_2.name
-      if L10_2 ~= A0_2 then
-        L10_2 = L9_2.name2
-        if L10_2 ~= A0_2 then
-          goto lbl_27
+
+--- Finds a sticker configuration entry by name (checks both name and name2)
+---@param stickerName string The sticker name to search for
+---@return table|nil The sticker config entry or nil if not found
+function GetStickerFromConfig(stickerName)
+    for _, category in ipairs(Config.Stickers) do
+        for _, sticker in ipairs(category.stickers) do
+            if sticker.name == stickerName or sticker.name2 == stickerName then
+                return sticker
+            end
         end
-      end
-      do return L9_2 end
-      ::lbl_27::
     end
-  end
+    return nil
 end
-GetStickerFromConfig = L0_1

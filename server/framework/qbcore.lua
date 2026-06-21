@@ -18,7 +18,7 @@ CreateThread(function()
 
         GetPlayerJob = function(source)
             local playerJobData = QBCore.Functions.GetPlayer(source)
-            return playerJobData.PlayerData.job.name, playerJobData.job.grade
+            return playerJobData.PlayerData.job.name, playerJobData.PlayerData.job.grade.level
         end
 
         GetPlayerMoney = function(source)

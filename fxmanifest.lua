@@ -23,19 +23,18 @@ shared_scripts {
 
 client_scripts {
     'client/framework/*.lua',
-    'client/client.lua',
-    'client/editor.lua',
-    'client/sticker.lua',
     'client/utils.lua',
+    'client/sticker.lua',
     'client/menu.lua',
     'client/tooltip.lua',
+    'client/editor.lua',
+    'client/client.lua',
 }
 
 server_scripts {
-    '@mysql-async/lib/MySQL.lua',
-    'server/framework/*.lua',
     'server/db/bridge.lua',
     'server/db/api.lua',
+    'server/framework/*.lua',
     'server/utils.lua',
     'server/server.lua',
 }
