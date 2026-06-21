@@ -3,7 +3,7 @@
 -- Manages decal identifiers, raycasting, vehicle detection
 -- ============================================================
 
-NO_FRAMEWORK = (Config.Framework == nil)
+NO_FRAMEWORK = (Config.Framework == nil or Config.Framework == '')
 
 ActiveIdentifiers = {}
 ActiveStickers = {}

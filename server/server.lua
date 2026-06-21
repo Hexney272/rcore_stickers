@@ -3,7 +3,7 @@
 -- Handles sticker placement, editing, deletion, syncing
 -- ============================================================
 
-NO_FRAMEWORK = (Config.Framework == nil)
+NO_FRAMEWORK = (Config.Framework == nil or Config.Framework == '')
 
 StickerCacheDB = {}
 CachedStickers = {}  -- [vehicleNetId] = { stickerData, ... }
