@@ -398,18 +398,7 @@ CreateThread(function()
 
     -- Standalone mode: define stub functions
     if NO_FRAMEWORK then
-        FetchVehicle = function(plate, model, playerId) return nil end
-        FetchAllStickers = function() return {} end
-        FetchStickers = function(vehicleHash, vehiclePlate) return {} end
-        InsertSticker = function(sticker, vehicleHash, vehiclePlate) return nil end
-        EditSticker = function(sticker) return nil end
-        DeleteSticker = function(sticker) return nil end
         return
-    end
-
-    -- Wait until DB API functions are ready
-    while FetchAllStickers == nil do
-        Wait(50)
     end
 
     -- Clean up stickers whose texture no longer exists in config
