@@ -1,55 +1,103 @@
 <!DOCTYPE html>
-<html lang="hu">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stickers</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div id="app" class="hidden">
-        <div class="menu-container">
-            <!-- Header -->
-            <div class="menu-header">
-                <h1>STICKERS</h1>
-                <div class="menu-tabs">
-                    <button class="tab active" data-tab="add">Hozzaadas</button>
-                    <button class="tab" data-tab="edit">Szerkesztes</button>
+    <div id="app" class="app hidden">
+        <!-- Main Panel -->
+        <div class="panel">
+            <!-- Navigation -->
+            <nav class="nav">
+                <div class="nav-brand">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/>
+                    </svg>
+                    <span>STICKERS</span>
                 </div>
-            </div>
+                <div class="nav-tabs">
+                    <button class="nav-tab active" data-tab="shop">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                        </svg>
+                        <span>Bolt</span>
+                    </button>
+                    <button class="nav-tab" data-tab="edit">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                        </svg>
+                        <span>Szerkesztes</span>
+                    </button>
+                </div>
+                <button class="nav-close" id="btn-close">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </nav>
 
-            <!-- Add Tab Content -->
-            <div class="tab-content active" id="tab-add">
-                <!-- Categories Sidebar -->
-                <div class="categories-sidebar">
-                    <div class="categories-title">Kategoriak</div>
-                    <div class="categories-list" id="categories-list"></div>
+            <!-- Shop Tab -->
+            <div class="tab-view active" id="view-shop">
+                <!-- Categories -->
+                <div class="sidebar">
+                    <div class="sidebar-label">Kategoriak</div>
+                    <div class="sidebar-list" id="cat-list"></div>
                 </div>
 
-                <!-- Stickers Grid -->
-                <div class="stickers-panel">
-                    <div class="stickers-grid" id="stickers-grid"></div>
-                </div>
-            </div>
+                <!-- Products -->
+                <div class="content">
+                    <div class="content-header">
+                        <h2 id="content-title">Valassz kategoriat</h2>
+                        <span class="content-count" id="content-count"></span>
+                    </div>
+                    <div class="product-grid" id="product-grid"></div>
 
-            <!-- Edit Tab Content -->
-            <div class="tab-content" id="tab-edit">
-                <div class="edit-panel">
-                    <div class="edit-list" id="edit-list"></div>
-                    <div class="edit-empty hidden" id="edit-empty">
-                        <p>Nincs matrica ezen a jarmuven.</p>
+                    <!-- Error state -->
+                    <div class="state-empty hidden" id="shop-error">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                        </svg>
+                        <p id="shop-error-text"></p>
                     </div>
                 </div>
             </div>
 
-            <!-- Error Messages -->
-            <div class="error-message hidden" id="error-add"></div>
-            <div class="error-message hidden" id="error-edit"></div>
+            <!-- Edit Tab -->
+            <div class="tab-view" id="view-edit">
+                <div class="edit-content">
+                    <div class="content-header">
+                        <h2>Aktiv matricak</h2>
+                        <span class="content-count" id="edit-count"></span>
+                    </div>
+                    <div class="edit-grid" id="edit-grid"></div>
+
+                    <!-- Empty state -->
+                    <div class="state-empty hidden" id="edit-empty">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/>
+                        </svg>
+                        <p>Nincs matrica ezen a jarmuven</p>
+                    </div>
+
+                    <!-- Error state -->
+                    <div class="state-empty hidden" id="edit-error">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                        </svg>
+                        <p id="edit-error-text"></p>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Preview indicator -->
-        <div class="preview-indicator hidden" id="preview-indicator">
-            <span>Elonezet</span>
+        <!-- Preview Badge (right side) -->
+        <div class="preview-badge hidden" id="preview-badge">
+            <div class="preview-badge-dot"></div>
+            <span>Elonezet aktiv</span>
         </div>
     </div>
 

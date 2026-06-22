@@ -1,285 +1,292 @@
 // ============================================================
-// NUI Script - Sticker Menu
+// STICKERS NUI - Premium Interface Logic
 // ============================================================
 
-let currentTab = 'add';
-let selectedCategory = 0;
-let selectedSticker = null;
-let menuData = null;
+(function() {
+    'use strict';
 
-// ========== DOM Elements ==========
-const app = document.getElementById('app');
-const categoriesList = document.getElementById('categories-list');
-const stickersGrid = document.getElementById('stickers-grid');
-const editList = document.getElementById('edit-list');
-const editEmpty = document.getElementById('edit-empty');
-const errorAdd = document.getElementById('error-add');
-const errorEdit = document.getElementById('error-edit');
-const previewIndicator = document.getElementById('preview-indicator');
-const tabs = document.querySelectorAll('.tab');
-const tabContents = document.querySelectorAll('.tab-content');
+    // ========== State ==========
+    let menuData = null;
+    let activeCategory = 0;
+    let currentTab = 'shop';
 
-// ========== Event Listeners ==========
-tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-        const tabName = tab.dataset.tab;
-        switchTab(tabName);
-    });
-});
+    // ========== Resource Name ==========
+    const RESOURCE = (typeof GetParentResourceName !== 'undefined')
+        ? GetParentResourceName()
+        : 'rcore_stickers';
 
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-        closeMenu();
-    }
-});
+    // ========== DOM References ==========
+    const $ = (sel) => document.querySelector(sel);
+    const $$ = (sel) => document.querySelectorAll(sel);
 
-// ========== NUI Message Handler ==========
-window.addEventListener('message', (event) => {
-    const data = event.data;
+    const app = $('#app');
+    const catList = $('#cat-list');
+    const productGrid = $('#product-grid');
+    const contentTitle = $('#content-title');
+    const contentCount = $('#content-count');
+    const editGrid = $('#edit-grid');
+    const editCount = $('#edit-count');
+    const editEmpty = $('#edit-empty');
+    const editError = $('#edit-error');
+    const editErrorText = $('#edit-error-text');
+    const shopError = $('#shop-error');
+    const shopErrorText = $('#shop-error-text');
+    const previewBadge = $('#preview-badge');
+    const btnClose = $('#btn-close');
 
-    switch (data.action) {
-        case 'open':
-            openMenu(data);
-            break;
-        case 'close':
-            hideMenu();
-            break;
-    }
-});
-
-// ========== Menu Functions ==========
-function openMenu(data) {
-    menuData = data;
-    selectedCategory = 0;
-    selectedSticker = null;
-
-    app.classList.remove('hidden');
-
-    // Reset to add tab
-    switchTab('add');
-
-    // Populate categories
-    renderCategories(data.categories);
-
-    // Select first category
-    if (data.categories.length > 0) {
-        selectCategory(0);
+    // ========== NUI Post ==========
+    function post(endpoint, data) {
+        return fetch(`https://${RESOURCE}/${endpoint}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data || {})
+        });
     }
 
-    // Handle errors
-    if (data.errorAdd && data.errorAdd !== '') {
-        errorAdd.textContent = data.errorAdd;
-        errorAdd.classList.remove('hidden');
-    } else {
-        errorAdd.classList.add('hidden');
-    }
-
-    if (data.errorEdit && data.errorEdit !== '') {
-        errorEdit.textContent = data.errorEdit;
-        errorEdit.classList.remove('hidden');
-    } else {
-        errorEdit.classList.add('hidden');
-    }
-
-    // Populate edit list
-    renderEditList(data.activeStickers || []);
-}
-
-function hideMenu() {
-    app.classList.add('hidden');
-    previewIndicator.classList.add('hidden');
-    selectedSticker = null;
-}
-
-function closeMenu() {
-    hideMenu();
-    fetch(`https://${GetParentResourceName()}/closeMenu`, {
-        method: 'POST',
-        body: JSON.stringify({})
-    });
-}
-
-function switchTab(tabName) {
-    currentTab = tabName;
-
-    tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === tabName));
-    tabContents.forEach(tc => tc.classList.toggle('active', tc.id === `tab-${tabName}`));
-
-    // Clear preview when switching tabs
-    if (tabName === 'edit') {
-        clearPreview();
-    }
-}
-
-// ========== Categories ==========
-function renderCategories(categories) {
-    categoriesList.innerHTML = '';
-
-    categories.forEach((cat, index) => {
-        const el = document.createElement('div');
-        el.className = 'category-item' + (index === 0 ? ' active' : '');
-        el.textContent = cat.category;
-        el.addEventListener('click', () => selectCategory(index));
-        categoriesList.appendChild(el);
-    });
-}
-
-function selectCategory(index) {
-    selectedCategory = index;
-
-    // Update active state
-    document.querySelectorAll('.category-item').forEach((el, i) => {
-        el.classList.toggle('active', i === index);
+    // ========== Event Listeners ==========
+    // Tab switching
+    $$('.nav-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            const name = tab.dataset.tab;
+            switchTab(name);
+        });
     });
 
-    // Render stickers
-    if (menuData && menuData.categories[index]) {
-        renderStickers(menuData.categories[index].stickers);
+    // Close button
+    btnClose.addEventListener('click', closeMenu);
+
+    // Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeMenu();
+        }
+    });
+
+    // NUI Messages from client.lua
+    window.addEventListener('message', (e) => {
+        const msg = e.data;
+        if (!msg || !msg.action) return;
+
+        switch (msg.action) {
+            case 'open':
+                openMenu(msg);
+                break;
+            case 'close':
+                hide();
+                break;
+        }
+    });
+
+    // ========== Menu Open ==========
+    function openMenu(data) {
+        menuData = data;
+        activeCategory = 0;
+        currentTab = 'shop';
+
+        // Show
+        app.classList.remove('hidden');
+
+        // Reset tabs
+        switchTab('shop');
+
+        // Categories
+        renderCategories(data.categories || []);
+
+        // Select first category
+        if (data.categories && data.categories.length > 0) {
+            selectCategory(0);
+        } else {
+            productGrid.innerHTML = '';
+            contentTitle.textContent = 'Nincs kategoria';
+            contentCount.textContent = '';
+        }
+
+        // Error handling for shop
+        if (data.errorAdd && data.errorAdd.length > 0) {
+            shopErrorText.textContent = data.errorAdd;
+            shopError.classList.remove('hidden');
+            productGrid.classList.add('hidden');
+        } else {
+            shopError.classList.add('hidden');
+            productGrid.classList.remove('hidden');
+        }
+
+        // Edit list
+        renderEditList(data.activeStickers || []);
+
+        // Error handling for edit
+        if (data.errorEdit && data.errorEdit.length > 0) {
+            editErrorText.textContent = data.errorEdit;
+            editError.classList.remove('hidden');
+            editGrid.classList.add('hidden');
+            editEmpty.classList.add('hidden');
+        } else {
+            editError.classList.add('hidden');
+            editGrid.classList.remove('hidden');
+        }
     }
 
-    // Clear preview
-    clearPreview();
-}
+    // ========== Menu Close ==========
+    function closeMenu() {
+        hide();
+        post('closeMenu');
+    }
 
-// ========== Stickers Grid ==========
-function renderStickers(stickers) {
-    stickersGrid.innerHTML = '';
+    function hide() {
+        app.classList.add('hidden');
+        previewBadge.classList.add('hidden');
+    }
 
-    stickers.forEach((sticker, index) => {
-        const card = document.createElement('div');
-        card.className = 'sticker-card';
+    // ========== Tab Switch ==========
+    function switchTab(name) {
+        currentTab = name;
 
-        const priceText = sticker.price > 0 ? `$${sticker.price}` : 'INGYENES';
-        const priceClass = sticker.price > 0 ? '' : ' free';
-
-        card.innerHTML = `
-            <div class="sticker-icon">&#9733;</div>
-            <div class="sticker-name">${sticker.name}</div>
-            <div class="sticker-price${priceClass}">${priceText}</div>
-        `;
-
-        card.addEventListener('mouseenter', () => {
-            hoverSticker(sticker);
+        $$('.nav-tab').forEach(t => {
+            t.classList.toggle('active', t.dataset.tab === name);
         });
 
-        card.addEventListener('mouseleave', () => {
-            clearPreview();
+        $$('.tab-view').forEach(v => {
+            v.classList.toggle('active', v.id === `view-${name}`);
         });
 
-        card.addEventListener('click', () => {
-            selectStickerForPlacement(sticker);
-        });
-
-        stickersGrid.appendChild(card);
-    });
-}
-
-// ========== Edit List ==========
-function renderEditList(stickers) {
-    editList.innerHTML = '';
-
-    if (stickers.length === 0) {
-        editEmpty.classList.remove('hidden');
-        return;
+        // Clear preview when switching
+        previewBadge.classList.add('hidden');
+        post('clearPreview');
     }
 
-    editEmpty.classList.add('hidden');
+    // ========== Categories ==========
+    function renderCategories(categories) {
+        catList.innerHTML = '';
 
-    stickers.forEach((sticker) => {
-        const item = document.createElement('div');
-        item.className = 'edit-item';
+        categories.forEach((cat, i) => {
+            const el = document.createElement('div');
+            el.className = 'cat-item' + (i === 0 ? ' active' : '');
+            el.textContent = cat.category;
+            el.addEventListener('click', () => selectCategory(i));
+            catList.appendChild(el);
+        });
+    }
 
-        item.innerHTML = `
-            <div class="edit-item-info">
-                <div class="edit-item-icon">&#9733;</div>
-                <div class="edit-item-name">${sticker.name}</div>
-            </div>
-            <button class="edit-btn">Szerkesztes</button>
-        `;
+    function selectCategory(index) {
+        activeCategory = index;
 
-        item.querySelector('.edit-btn').addEventListener('click', (e) => {
-            e.stopPropagation();
-            editExistingSticker(sticker);
+        // Update active state
+        $$('.cat-item').forEach((el, i) => {
+            el.classList.toggle('active', i === index);
         });
 
-        item.addEventListener('mouseenter', () => {
-            hoverEditSticker(sticker);
+        // Render products
+        const cat = menuData.categories[index];
+        if (cat) {
+            contentTitle.textContent = cat.category;
+            contentCount.textContent = cat.stickers.length + ' db';
+            renderProducts(cat.stickers);
+        }
+
+        // Hide preview
+        previewBadge.classList.add('hidden');
+        post('clearPreview');
+    }
+
+    // ========== Products ==========
+    function renderProducts(stickers) {
+        productGrid.innerHTML = '';
+
+        stickers.forEach(sticker => {
+            const card = document.createElement('div');
+            card.className = 'product-card';
+
+            const priceText = (menuData.noFramework || sticker.price === 0)
+                ? 'INGYENES'
+                : '$' + sticker.price;
+            const priceClass = (menuData.noFramework || sticker.price === 0)
+                ? 'card-price free'
+                : 'card-price';
+
+            card.innerHTML = `
+                <div class="card-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                    </svg>
+                </div>
+                <div class="card-name">${sticker.name}</div>
+                <div class="${priceClass}">${priceText}</div>
+            `;
+
+            // Hover = preview
+            card.addEventListener('mouseenter', () => {
+                previewBadge.classList.remove('hidden');
+                post('previewSticker', { name: sticker.name, dict: sticker.dict });
+            });
+
+            card.addEventListener('mouseleave', () => {
+                previewBadge.classList.add('hidden');
+                post('clearPreview');
+            });
+
+            // Click = select for placement
+            card.addEventListener('click', () => {
+                hide();
+                post('selectSticker', {
+                    name: sticker.name,
+                    dict: sticker.dict,
+                    price: sticker.price
+                });
+            });
+
+            productGrid.appendChild(card);
         });
+    }
 
-        item.addEventListener('mouseleave', () => {
-            clearEditPreview(sticker);
+    // ========== Edit List ==========
+    function renderEditList(stickers) {
+        editGrid.innerHTML = '';
+        editCount.textContent = stickers.length + ' db';
+
+        if (stickers.length === 0) {
+            editEmpty.classList.remove('hidden');
+            return;
+        }
+
+        editEmpty.classList.add('hidden');
+
+        stickers.forEach(sticker => {
+            const item = document.createElement('div');
+            item.className = 'edit-item';
+
+            item.innerHTML = `
+                <div class="edit-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                    </svg>
+                </div>
+                <div class="edit-info">
+                    <div class="edit-name">${sticker.name}</div>
+                    <div class="edit-id">ID: ${sticker.id}</div>
+                </div>
+                <div class="edit-actions">
+                    <button class="btn-edit">Szerkesztes</button>
+                </div>
+            `;
+
+            // Hover = highlight on vehicle
+            item.addEventListener('mouseenter', () => {
+                post('highlightSticker', { id: sticker.id });
+            });
+
+            item.addEventListener('mouseleave', () => {
+                post('unhighlightSticker', { id: sticker.id });
+            });
+
+            // Edit button click
+            item.querySelector('.btn-edit').addEventListener('click', (e) => {
+                e.stopPropagation();
+                hide();
+                post('editSticker', { id: sticker.id, name: sticker.name });
+            });
+
+            editGrid.appendChild(item);
         });
+    }
 
-        editList.appendChild(item);
-    });
-}
-
-// ========== Preview / Hover ==========
-function hoverSticker(sticker) {
-    selectedSticker = sticker;
-    previewIndicator.classList.remove('hidden');
-
-    fetch(`https://${GetParentResourceName()}/previewSticker`, {
-        method: 'POST',
-        body: JSON.stringify({
-            name: sticker.name,
-            dict: sticker.dict
-        })
-    });
-}
-
-function clearPreview() {
-    selectedSticker = null;
-    previewIndicator.classList.add('hidden');
-
-    fetch(`https://${GetParentResourceName()}/clearPreview`, {
-        method: 'POST',
-        body: JSON.stringify({})
-    });
-}
-
-function hoverEditSticker(sticker) {
-    fetch(`https://${GetParentResourceName()}/highlightSticker`, {
-        method: 'POST',
-        body: JSON.stringify({ id: sticker.id })
-    });
-}
-
-function clearEditPreview(sticker) {
-    fetch(`https://${GetParentResourceName()}/unhighlightSticker`, {
-        method: 'POST',
-        body: JSON.stringify({ id: sticker.id })
-    });
-}
-
-// ========== Actions ==========
-function selectStickerForPlacement(sticker) {
-    hideMenu();
-
-    fetch(`https://${GetParentResourceName()}/selectSticker`, {
-        method: 'POST',
-        body: JSON.stringify({
-            name: sticker.name,
-            dict: sticker.dict,
-            price: sticker.price,
-            categoryIndex: selectedCategory
-        })
-    });
-}
-
-function editExistingSticker(sticker) {
-    hideMenu();
-
-    fetch(`https://${GetParentResourceName()}/editSticker`, {
-        method: 'POST',
-        body: JSON.stringify({
-            id: sticker.id,
-            name: sticker.name
-        })
-    });
-}
-
-// ========== Utility ==========
-function GetParentResourceName() {
-    return window.GetParentResourceName ? window.GetParentResourceName() : 'rcore_stickers';
-}
+})();
