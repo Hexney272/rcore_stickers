@@ -1,4 +1,9 @@
 CreateThread(function()
+    -- Wait until DB bridge is initialized
+    while DB.fetchAll == nil do
+        Wait(100)
+    end
+
     local _table = Config.FrameworkSQLTables['table']
     local _identifier = Config.FrameworkSQLTables['identifier']
 
