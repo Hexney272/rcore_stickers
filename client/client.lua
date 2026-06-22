@@ -108,23 +108,31 @@ CreateThread(function()
                             local vehicle = NetworkGetEntityFromNetworkId(SelectedVehicle)
                             local identifier = GetUsableIdentifier()
 
+                            print("[STICKER] Selected! SelectedVehicle=" .. tostring(SelectedVehicle) .. " vehicle=" .. tostring(vehicle) .. " identifier=" .. tostring(identifier))
+
                             if identifier == nil then
                                 identifier = FreeIdentifier(vehicle)
+                                print("[STICKER] FreeIdentifier result=" .. tostring(identifier))
                             end
 
-                            ActiveIdentifiers[identifier] = true
+                            if identifier then
+                                ActiveIdentifiers[identifier] = true
+                                print("[STICKER] Starting editor with mapId=" .. tostring(identifier) .. " name=" .. tostring(name))
 
-                            StartEditor(identifier, name, nil, vehicle, function(result)
-                                if result ~= nil then
-                                    for _, stickerResult in ipairs(result) do
-                                        ActiveIdentifiers[stickerResult.mapId] = false
-                                        TriggerServerEvent("lsrp_stickers:placeSticker", SelectedVehicle, stickerResult)
+                                StartEditor(identifier, name, nil, vehicle, function(result)
+                                    if result ~= nil then
+                                        for _, stickerResult in ipairs(result) do
+                                            ActiveIdentifiers[stickerResult.mapId] = false
+                                            TriggerServerEvent("lsrp_stickers:placeSticker", SelectedVehicle, stickerResult)
+                                        end
                                     end
-                                end
-                                SelectedVehicle = 0
-                            end)
+                                    SelectedVehicle = 0
+                                end)
 
-                            WarMenu.CloseMenu()
+                                WarMenu.CloseMenu()
+                            else
+                                print("[STICKER] ERROR: No identifier available!")
+                            end
                         end
                     end
                 end
