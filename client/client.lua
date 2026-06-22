@@ -115,56 +115,74 @@ end)
 
 -- Select sticker for placement -> open editor
 RegisterNUICallback('selectSticker', function(data, cb)
+    local savedVehicleNet = SelectedVehicle
+    local stickerName = data.name
+
     CloseNUIMenu()
-
-    local vehicle = NetworkGetEntityFromNetworkId(SelectedVehicle)
-    local identifier = GetUsableIdentifier()
-
-    if identifier == nil then
-        identifier = FreeIdentifier(vehicle)
-    end
-
-    if identifier then
-        ActiveIdentifiers[identifier] = true
-
-        StartEditor(identifier, data.name, nil, vehicle, function(result)
-            if result ~= nil then
-                for _, stickerResult in ipairs(result) do
-                    ActiveIdentifiers[stickerResult.mapId] = false
-                    TriggerServerEvent("lsrp_stickers:placeSticker", SelectedVehicle, stickerResult)
-                end
-            end
-            SelectedVehicle = 0
-        end)
-    end
-
     cb('ok')
+
+    -- Give FiveM a moment to restore game controls after NUI focus release
+    CreateThread(function()
+        Wait(200)
+
+        local vehicle = NetworkGetEntityFromNetworkId(savedVehicleNet)
+        local identifier = GetUsableIdentifier()
+
+        if identifier == nil then
+            identifier = FreeIdentifier(vehicle)
+        end
+
+        if identifier then
+            ActiveIdentifiers[identifier] = true
+
+            StartEditor(identifier, stickerName, nil, vehicle, function(result)
+                if result ~= nil then
+                    for _, stickerResult in ipairs(result) do
+                        ActiveIdentifiers[stickerResult.mapId] = false
+                        TriggerServerEvent("lsrp_stickers:placeSticker", savedVehicleNet, stickerResult)
+                    end
+                end
+                SelectedVehicle = 0
+            end)
+        else
+            SelectedVehicle = 0
+        end
+    end)
 end)
 
 -- Edit existing sticker -> open editor
 RegisterNUICallback('editSticker', function(data, cb)
+    local savedVehicleNet = SelectedVehicle
+    local stickerId = data.id
+
     CloseNUIMenu()
-
-    local sticker = ActiveStickers[data.id]
-    if sticker then
-        local vehicle = NetworkGetEntityFromNetworkId(SelectedVehicle)
-
-        RemoveSticker(sticker)
-        ApplySticker(sticker, 1.0)
-
-        StartEditor(sticker.mapId, sticker.name, sticker, vehicle, function(result)
-            if result then
-                if next(result) then
-                    TriggerServerEvent("lsrp_stickers:editSticker", SelectedVehicle, result[1])
-                else
-                    TriggerServerEvent("lsrp_stickers:deleteSticker", SelectedVehicle, sticker)
-                end
-            end
-            SelectedVehicle = 0
-        end)
-    end
-
     cb('ok')
+
+    -- Give FiveM a moment to restore game controls after NUI focus release
+    CreateThread(function()
+        Wait(200)
+
+        local sticker = ActiveStickers[stickerId]
+        if sticker then
+            local vehicle = NetworkGetEntityFromNetworkId(savedVehicleNet)
+
+            RemoveSticker(sticker)
+            ApplySticker(sticker, 1.0)
+
+            StartEditor(sticker.mapId, sticker.name, sticker, vehicle, function(result)
+                if result then
+                    if next(result) then
+                        TriggerServerEvent("lsrp_stickers:editSticker", savedVehicleNet, result[1])
+                    else
+                        TriggerServerEvent("lsrp_stickers:deleteSticker", savedVehicleNet, sticker)
+                    end
+                end
+                SelectedVehicle = 0
+            end)
+        else
+            SelectedVehicle = 0
+        end
+    end)
 end)
 
 -- Highlight sticker on hover (edit tab)
