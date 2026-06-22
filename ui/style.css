@@ -41,6 +41,10 @@ body {
     background: transparent !important;
 }
 
+html {
+    background: transparent !important;
+}
+
 .hidden {
     display: none !important;
 }
