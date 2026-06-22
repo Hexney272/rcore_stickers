@@ -153,6 +153,14 @@ function StartEditor(mapId, stickerName, existingSticker, vehicle, callback)
             -- Raycast from camera
             local _, _, rayPos, rayNormal, rayEntity = ShapeTestFromGameplayCam()
 
+            -- DEBUG: print rayEntity vs vehicle every 60 frames
+            if not _debugCounter then _debugCounter = 0 end
+            _debugCounter = _debugCounter + 1
+            if _debugCounter % 60 == 0 then
+                print(string.format("[STICKER DEBUG] rayEntity=%s vehicle=%s match=%s rayPos=%s", 
+                    tostring(rayEntity), tostring(vehicle), tostring(vehicle == rayEntity), tostring(rayPos)))
+            end
+
             -- Raycasting variables for mirror
             local mirrorRetval = 0
             local mirrorHit = 0
