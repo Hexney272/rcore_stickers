@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stickers</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app" class="hidden">
+        <div class="menu-container">
+            <!-- Header -->
+            <div class="menu-header">
+                <h1>STICKERS</h1>
+                <div class="menu-tabs">
+                    <button class="tab active" data-tab="add">Hozzaadas</button>
+                    <button class="tab" data-tab="edit">Szerkesztes</button>
+                </div>
+            </div>
+
+            <!-- Add Tab Content -->
+            <div class="tab-content active" id="tab-add">
+                <!-- Categories Sidebar -->
+                <div class="categories-sidebar">
+                    <div class="categories-title">Kategoriak</div>
+                    <div class="categories-list" id="categories-list"></div>
+                </div>
+
+                <!-- Stickers Grid -->
+                <div class="stickers-panel">
+                    <div class="stickers-grid" id="stickers-grid"></div>
+                </div>
+            </div>
+
+            <!-- Edit Tab Content -->
+            <div class="tab-content" id="tab-edit">
+                <div class="edit-panel">
+                    <div class="edit-list" id="edit-list"></div>
+                    <div class="edit-empty hidden" id="edit-empty">
+                        <p>Nincs matrica ezen a jarmuven.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Error Messages -->
+            <div class="error-message hidden" id="error-add"></div>
+            <div class="error-message hidden" id="error-edit"></div>
+        </div>
+
+        <!-- Preview indicator -->
+        <div class="preview-indicator hidden" id="preview-indicator">
+            <span>Elonezet</span>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
