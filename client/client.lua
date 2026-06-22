@@ -1,6 +1,7 @@
 -- ============================================================
 -- Client Main
--- NUI menu integration, sticker sync events, texture loading
+-- NUI menu for selection, WarMenu logic for editor triggering
+-- Sticker sync events, texture loading
 -- ============================================================
 
 local isMenuOpen = false
@@ -39,200 +40,170 @@ AddEventHandler('lsrp_stickers:openMenu', function(vehicleNetId, errorAdd, error
     SelectedVehicle = vehicleNetId
     ErrorMsgAdd = errorAdd
     ErrorMsgEdit = errorEdit
-
-    -- Build category data for NUI
-    local categories = {}
-    for _, cat in ipairs(Config.Stickers) do
-        local stickers = {}
-        for _, sticker in ipairs(cat.stickers) do
-            if DoesStickerTextureExist(sticker.name, sticker.dict) then
-                table.insert(stickers, {
-                    name = sticker.name,
-                    name2 = sticker.name2,
-                    price = sticker.price,
-                    flip = sticker.flip,
-                    dict = sticker.dict,
-                    premium = sticker.premium,
-                })
-            end
-        end
-        table.insert(categories, {
-            category = cat.category,
-            stickers = stickers,
-        })
-    end
-
-    -- Build active stickers list for edit tab
-    local activeList = {}
-    for id, sticker in pairs(ActiveStickers) do
-        if sticker.vehicleId == vehicleNetId then
-            table.insert(activeList, {
-                id = sticker.id,
-                name = sticker.name,
-                dict = sticker.dict,
-                mapId = sticker.mapId,
-            })
-        end
-    end
-
-    -- Open NUI
-    SetNuiFocus(true, true)
-    isMenuOpen = true
-
-    SendNUIMessage({
-        action = 'open',
-        categories = categories,
-        activeStickers = activeList,
-        errorAdd = errorAdd,
-        errorEdit = errorEdit,
-        noFramework = NO_FRAMEWORK,
-    })
+    WarMenu.OpenMenu("STICKERS_MAIN")
 end)
 
--- ========== NUI Callbacks ==========
-
--- Close menu
-RegisterNUICallback('closeMenu', function(data, cb)
-    CloseNUIMenu()
-    cb('ok')
-end)
-
--- Preview sticker (hover) - triggers DrawSprite
-RegisterNUICallback('previewSticker', function(data, cb)
-    previewActive = true
-    previewDict = data.dict
-    previewName = data.name
-    cb('ok')
-end)
-
--- Clear preview
-RegisterNUICallback('clearPreview', function(data, cb)
-    previewActive = false
-    previewDict = nil
-    previewName = nil
-    cb('ok')
-end)
-
--- Select sticker for placement -> open editor
-RegisterNUICallback('selectSticker', function(data, cb)
-    local savedVehicleNet = SelectedVehicle
-    local stickerName = data.name
-
-    CloseNUIMenu()
-    cb('ok')
-
-    -- Give FiveM a moment to restore game controls after NUI focus release
-    CreateThread(function()
-        Wait(200)
-
-        local vehicle = NetworkGetEntityFromNetworkId(savedVehicleNet)
-        local identifier = GetUsableIdentifier()
-
-        if identifier == nil then
-            identifier = FreeIdentifier(vehicle)
-        end
-
-        if identifier then
-            ActiveIdentifiers[identifier] = true
-
-            StartEditor(identifier, stickerName, nil, vehicle, function(result)
-                if result ~= nil then
-                    for _, stickerResult in ipairs(result) do
-                        ActiveIdentifiers[stickerResult.mapId] = false
-                        TriggerServerEvent("lsrp_stickers:placeSticker", savedVehicleNet, stickerResult)
-                    end
-                end
-                SelectedVehicle = 0
-            end)
-        else
-            SelectedVehicle = 0
-        end
-    end)
-end)
-
--- Edit existing sticker -> open editor
-RegisterNUICallback('editSticker', function(data, cb)
-    local savedVehicleNet = SelectedVehicle
-    local stickerId = data.id
-
-    CloseNUIMenu()
-    cb('ok')
-
-    -- Give FiveM a moment to restore game controls after NUI focus release
-    CreateThread(function()
-        Wait(200)
-
-        local sticker = ActiveStickers[stickerId]
-        if sticker then
-            local vehicle = NetworkGetEntityFromNetworkId(savedVehicleNet)
-
-            RemoveSticker(sticker)
-            ApplySticker(sticker, 1.0)
-
-            StartEditor(sticker.mapId, sticker.name, sticker, vehicle, function(result)
-                if result then
-                    if next(result) then
-                        TriggerServerEvent("lsrp_stickers:editSticker", savedVehicleNet, result[1])
-                    else
-                        TriggerServerEvent("lsrp_stickers:deleteSticker", savedVehicleNet, sticker)
-                    end
-                end
-                SelectedVehicle = 0
-            end)
-        else
-            SelectedVehicle = 0
-        end
-    end)
-end)
-
--- Highlight sticker on hover (edit tab)
-RegisterNUICallback('highlightSticker', function(data, cb)
-    local sticker = ActiveStickers[data.id]
-    if sticker then
-        RemoveSticker(sticker)
-        ApplySticker(sticker, 0.3)
-    end
-    cb('ok')
-end)
-
--- Unhighlight sticker (edit tab)
-RegisterNUICallback('unhighlightSticker', function(data, cb)
-    local sticker = ActiveStickers[data.id]
-    if sticker then
-        RemoveSticker(sticker)
-        ApplySticker(sticker, 1.0)
-    end
-    cb('ok')
-end)
-
--- ========== Helper ==========
-function CloseNUIMenu()
-    SetNuiFocus(false, false)
-    isMenuOpen = false
-    previewActive = false
-    previewDict = nil
-    previewName = nil
-
-    SendNUIMessage({ action = 'close' })
-end
-
--- ========== DrawSprite Preview Thread ==========
+-- ========== Main Menu Thread (WarMenu) ==========
 CreateThread(function()
+    local hoveredStickerId = 0
+    local selectedStickers = nil
+
+    -- Create menus
+    WarMenu.CreateMenu("STICKERS_MAIN", Config.Text.MENU_MAIN_TITLE or "STICKERS", Config.Text.MENU_MAIN_SUBTITLE or "Options")
+    WarMenu.CreateSubMenu("STICKERS_CATEGORY", "STICKERS_MAIN", Config.Text.MENU_CATEGORY_SUBTITLE or "Categories")
+    WarMenu.CreateSubMenu("STICKERS_EDIT", "STICKERS_MAIN", Config.Text.MENU_EDIT_SUBTITLE or "Existing stickers")
+    WarMenu.CreateSubMenu("STICKERS_ADD", "STICKERS_CATEGORY")
+
     while true do
         Wait(0)
 
-        if previewActive and previewDict and previewName then
-            local w, h = GetStickerResolution(previewName, previewDict, 0.5)
-            DrawSprite(previewDict, previewName, 0.75, 0.5, w, h, 0.0, 255, 255, 255, 255)
-        else
-            Wait(100)
+        if not WarMenu.IsAnyMenuOpened() then
+            Wait(500)
+        end
+
+        -- Main menu
+        if WarMenu.Begin("STICKERS_MAIN") then
+            WarMenu.MenuButton(Config.Text.MENU_BUTTON_ADD or "Add", "STICKERS_CATEGORY")
+            WarMenu.MenuButton(Config.Text.MENU_BUTTON_EDIT or "Edit", "STICKERS_EDIT")
+            WarMenu.End()
+        end
+
+        -- Category selection menu
+        if WarMenu.Begin("STICKERS_CATEGORY") then
+            if ErrorMsgAdd ~= "" then
+                WarMenu.ToolTip(ErrorMsgAdd)
+            else
+                for i, categoryData in ipairs(Config.Stickers) do
+                    if WarMenu.MenuButton(categoryData.category, "STICKERS_ADD") then
+                        WarMenu.SetSubTitle("STICKERS_ADD", categoryData.category)
+                        selectedStickers = categoryData.stickers
+                    end
+                end
+            end
+            WarMenu.End()
+        end
+
+        -- Add sticker menu (shows stickers from selected category)
+        if WarMenu.Begin("STICKERS_ADD") then
+            if selectedStickers then
+                for i, sticker in ipairs(selectedStickers) do
+                    local name = sticker.name
+                    local price = sticker.price
+                    local dict = sticker.dict
+
+                    if DoesStickerTextureExist(name, dict) then
+                        -- Show button with price
+                        if NO_FRAMEWORK then
+                            WarMenu.Button(name)
+                        elseif price > 0 then
+                            local priceText = (Config.Text.MENU_BUTTON_PRICE or "~g~$%s"):format(price)
+                            WarMenu.Button(name, priceText)
+                        else
+                            WarMenu.Button(name, Config.Text.MENU_BUTTON_FREE or "~g~FREE")
+                        end
+
+                        -- Preview on hover
+                        if WarMenu.IsItemHovered() then
+                            local w, h = GetStickerResolution(name, dict, 0.5)
+                            DrawSprite(dict, name, 0.5, 0.5, w, h, 0.0, 255, 255, 255, 255)
+                        end
+
+                        -- Start editor on select
+                        if WarMenu.IsItemSelected() then
+                            local vehicle = NetworkGetEntityFromNetworkId(SelectedVehicle)
+                            local identifier = GetUsableIdentifier()
+
+                            if identifier == nil then
+                                identifier = FreeIdentifier(vehicle)
+                            end
+
+                            ActiveIdentifiers[identifier] = true
+
+                            StartEditor(identifier, name, nil, vehicle, function(result)
+                                if result ~= nil then
+                                    for _, stickerResult in ipairs(result) do
+                                        ActiveIdentifiers[stickerResult.mapId] = false
+                                        TriggerServerEvent("lsrp_stickers:placeSticker", SelectedVehicle, stickerResult)
+                                    end
+                                end
+                                SelectedVehicle = 0
+                            end)
+
+                            WarMenu.CloseMenu()
+                        end
+                    end
+                end
+            end
+            WarMenu.End()
+        end
+
+        -- Edit existing stickers menu
+        if WarMenu.Begin("STICKERS_EDIT") then
+            if ErrorMsgEdit ~= "" then
+                WarMenu.ToolTip(ErrorMsgEdit)
+            else
+                for id, sticker in pairs(ActiveStickers) do
+                    if sticker.vehicleId == SelectedVehicle then
+                        WarMenu.Button(sticker.name)
+
+                        -- Highlight hovered sticker (make it semi-transparent)
+                        if WarMenu.IsItemHovered() and id ~= hoveredStickerId then
+                            -- Restore previous hovered sticker
+                            if hoveredStickerId ~= 0 then
+                                local prev = ActiveStickers[hoveredStickerId]
+                                if prev then
+                                    RemoveSticker(prev)
+                                    ApplySticker(prev, 1.0)
+                                end
+                            end
+
+                            -- Make current sticker semi-transparent
+                            RemoveSticker(sticker)
+                            ApplySticker(sticker, 0.3)
+                            hoveredStickerId = id
+                        end
+
+                        -- Open editor on select
+                        if WarMenu.IsItemSelected() then
+                            RemoveSticker(sticker)
+                            ApplySticker(sticker, 1.0)
+
+                            local vehicle = NetworkGetEntityFromNetworkId(SelectedVehicle)
+
+                            StartEditor(sticker.mapId, sticker.name, sticker, vehicle, function(result)
+                                if result then
+                                    if next(result) then
+                                        -- Edited
+                                        TriggerServerEvent("lsrp_stickers:editSticker", SelectedVehicle, result[1])
+                                    else
+                                        -- Deleted (empty table)
+                                        TriggerServerEvent("lsrp_stickers:deleteSticker", SelectedVehicle, sticker)
+                                    end
+                                end
+                                SelectedVehicle = 0
+                            end)
+
+                            hoveredStickerId = 0
+                            WarMenu.CloseMenu()
+                        end
+                    end
+                end
+            end
+            WarMenu.End()
+        elseif hoveredStickerId ~= 0 then
+            -- Restore sticker when leaving edit menu
+            local prev = ActiveStickers[hoveredStickerId]
+            if prev then
+                hoveredStickerId = 0
+                RemoveSticker(prev)
+                ApplySticker(prev, 1.0)
+            end
         end
     end
 end)
 
--- ========== Sticker Sync Events (unchanged logic) ==========
+-- ========== Sticker Sync Events ==========
 
--- Server sends sticker data for nearby vehicles (periodic refresh)
 RegisterNetEvent('lsrp_stickers:refreshStickers')
 AddEventHandler('lsrp_stickers:refreshStickers', function(stickersData)
     if next(stickersData) == nil then
@@ -289,7 +260,6 @@ AddEventHandler('lsrp_stickers:refreshStickers', function(stickersData)
     end
 end)
 
--- A new sticker was placed (broadcast to all clients)
 RegisterNetEvent('lsrp_stickers:placeSticker')
 AddEventHandler('lsrp_stickers:placeSticker', function(vehicleNetId, stickerData)
     if not IsVehicleInRange(vehicleNetId) then return end
@@ -315,7 +285,6 @@ AddEventHandler('lsrp_stickers:placeSticker', function(vehicleNetId, stickerData
     end
 end)
 
--- A sticker was edited (broadcast to all clients)
 RegisterNetEvent('lsrp_stickers:editSticker')
 AddEventHandler('lsrp_stickers:editSticker', function(vehicleNetId, stickerData)
     if not IsVehicleInRange(vehicleNetId) then return end
@@ -330,7 +299,6 @@ AddEventHandler('lsrp_stickers:editSticker', function(vehicleNetId, stickerData)
     end
 end)
 
--- A sticker was deleted (broadcast to all clients)
 RegisterNetEvent('lsrp_stickers:deleteSticker')
 AddEventHandler('lsrp_stickers:deleteSticker', function(vehicleNetId, stickerData)
     if not IsVehicleInRange(vehicleNetId) then return end
@@ -344,7 +312,6 @@ AddEventHandler('lsrp_stickers:deleteSticker', function(vehicleNetId, stickerDat
     end
 end)
 
--- All stickers on a vehicle were deleted (vehicle despawned on server)
 RegisterNetEvent('lsrp_stickers:deleteAllStickers')
 AddEventHandler('lsrp_stickers:deleteAllStickers', function(vehicleNetId)
     for id, sticker in pairs(ActiveStickers) do
@@ -356,7 +323,6 @@ AddEventHandler('lsrp_stickers:deleteAllStickers', function(vehicleNetId)
     end
 end)
 
--- Manual refresh
 RegisterNetEvent('rcore_stickers:refreshStickers')
 AddEventHandler('rcore_stickers:refreshStickers', function()
     for _, sticker in pairs(ActiveStickers) do
@@ -373,9 +339,6 @@ end, false)
 -- Cleanup on resource stop
 AddEventHandler('onResourceStop', function(resourceName)
     if GetCurrentResourceName() == resourceName then
-        if isMenuOpen then
-            CloseNUIMenu()
-        end
         for _, sticker in pairs(ActiveStickers) do
             RemoveSticker(sticker)
         end
