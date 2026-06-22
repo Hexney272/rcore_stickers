@@ -281,6 +281,12 @@ function StartEditor(mapId, stickerName, existingSticker, vehicle, callback)
                         -- Update main sticker
                         RemoveSticker(sticker)
                         sticker.handle = AddSticker(rayPos, -rayNormal, sticker.rot, w, h, 1.0, sticker.mapId, rayEntity)
+
+                        -- DEBUG
+                        if _debugCounter % 60 == 0 then
+                            print(string.format("[STICKER RENDER] handle=%s w=%.3f h=%.3f mapId=%s dict=%s name=%s normal=%s",
+                                tostring(sticker.handle), w, h, tostring(sticker.mapId), tostring(sticker.dict), tostring(sticker.name), tostring(rayNormal)))
+                        end
                     end
                 end
 
