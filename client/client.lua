@@ -1,13 +1,8 @@
 -- ============================================================
 -- Client Main
--- NUI menu for selection, WarMenu logic for editor triggering
+-- WarMenu based sticker selection, editor triggering
 -- Sticker sync events, texture loading
 -- ============================================================
-
-local isMenuOpen = false
-local previewActive = false
-local previewDict = nil
-local previewName = nil
 
 -- ========== Menu Open (via event or command) ==========
 if Config.Accessibility.event then
