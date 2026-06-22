@@ -1,7 +1,7 @@
 CreateThread(function()
-    -- Wait until DB bridge is initialized
+    -- Wait until DB bridge has initialized its functions
     while DB.fetchAll == nil do
-        Wait(100)
+        Wait(50)
     end
 
     local _table = Config.FrameworkSQLTables['table']

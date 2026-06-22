@@ -407,6 +407,11 @@ CreateThread(function()
         return
     end
 
+    -- Wait until DB API functions are ready
+    while FetchAllStickers == nil do
+        Wait(50)
+    end
+
     -- Clean up stickers whose texture no longer exists in config
     local allStickers = FetchAllStickers()
 
