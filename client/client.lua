@@ -365,3 +365,30 @@ CreateThread(function()
         end
     end
 end)
+
+-- ========== real_markers Integration ==========
+-- Register sticker interaction points using real_markers exports
+CreateThread(function()
+    -- Wait for real_markers to be started
+    if GetResourceState('real_markers') ~= 'started' then return end
+
+    Wait(2000) -- Give real_markers time to initialize
+
+    for _, point in ipairs(Config.StickerPoints or {}) do
+        exports['real_markers']:RegisterCustomMarker(point.id, {
+            coords = point.coords,
+            style = point.style or 'mechanic',
+            title = point.title or 'Matrica felrakás',
+            helpText = point.helpText or '~INPUT_CONTEXT~ Matrica',
+            drawDistance = point.drawDistance or 25.0,
+            interactDistance = point.interactDistance or 3.0,
+            event = 'rcore_stickers:openMenu',
+        })
+    end
+end)
+
+-- Handle the marker interaction event
+AddEventHandler('rcore_stickers:openMenu', function(markerId, args)
+    -- This is triggered by real_markers when player interacts with a sticker point
+    OpenStickerMenu()
+end)

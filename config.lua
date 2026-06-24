@@ -48,6 +48,39 @@ Config.EditorOptions = {
     minScale = 0.1, -- The minimum scale of the sticker in editor
 }
 
+-- ===== MATRICA PONTOK (real_markers integráció) =====
+-- Ha a real_markers resource fut, ezeken a pontokon jelenik meg egy marker
+-- ahol a játékos megnyithatja a matrica menüt (a járműre nézve)
+-- Adj hozzá annyi pontot amennyit szeretnél!
+Config.StickerPoints = {
+    {
+        id = 'sticker_point_1',
+        coords = vec3(-337.39, -136.87, 39.01), -- Példa: Burton LSC
+        style = 'mechanic',
+        title = 'Matrica felrakás',
+        helpText = '~INPUT_CONTEXT~ Matrica',
+        drawDistance = 25.0,
+        interactDistance = 3.0,
+    },
+    {
+        id = 'sticker_point_2',
+        coords = vec3(732.23, -1088.79, 22.17), -- Példa: La Mesa LSC
+        style = 'mechanic',
+        title = 'Matrica felrakás',
+        helpText = '~INPUT_CONTEXT~ Matrica',
+        drawDistance = 25.0,
+        interactDistance = 3.0,
+    },
+    -- Adj hozzá több pontot:
+    -- {
+    --     id = 'sticker_point_3',
+    --     coords = vec3(x, y, z),
+    --     style = 'mechanic',
+    --     title = 'Matrica felrakás',
+    --     helpText = '~INPUT_CONTEXT~ Matrica',
+    -- },
+}
+
 Config.Controls = {}
 
 -- Controls used in the sticker editor, you can find the controls codes here https://docs.fivem.net/docs/game-references/controls/
