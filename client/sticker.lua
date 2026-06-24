@@ -85,16 +85,38 @@ function DoesStickerTextureExist(name, dict)
 end
 
 --- Calculates the scaled resolution (width/height) for a sticker
+--- Caps physical size for image stickers to prevent full-car coverage
 ---@param name string Texture name
 ---@param dict string Texture dictionary name
 ---@param scale number Scale multiplier
+---@param isImage boolean|nil Whether this is a runtime image sticker
 ---@return number width Scaled width
 ---@return number height Scaled height
-function GetStickerResolution(name, dict, scale)
+function GetStickerResolution(name, dict, scale, isImage)
     local resolution = GetTextureResolution(dict, name)
+
+    if not resolution or #resolution <= 10.0 then
+        -- Fallback: assume square
+        local fallbackSize = 0.5 * (scale or 1.0)
+        return fallbackSize, fallbackSize
+    end
+
     local total = resolution.x + resolution.y
     local width = (resolution.x / total) * scale
     local height = (resolution.y / total) * scale
+
+    -- Image stickers: cap max physical dimensions
+    -- Prevents a 4096x4096 image from covering the entire vehicle
+    if isImage then
+        local maxPhysical = Config.MaxStickerPhysicalSize or 0.8
+        local maxDim = math.max(width, height)
+        if maxDim > maxPhysical then
+            local ratio = maxPhysical / maxDim
+            width = width * ratio
+            height = height * ratio
+        end
+    end
+
     return width, height
 end
 

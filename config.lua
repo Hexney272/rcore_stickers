@@ -68,6 +68,8 @@ Config.EditorOptions = {
 
 Config.DefaultStickerPrice = 500 -- Alapértelmezett ár (Ft) ha nincs külön megadva
 Config.StickerCurrency = 'Ft' -- Pénznem megjelenítés
+Config.MaxStickerPhysicalSize = 0.8 -- Max matrica méret méterben (scale 1.0-nál) - megakadályozza hogy az egész autót eltakarja
+Config.MaxTextureResolution = 512 -- Bedobott képek ennél a felbontásnál lesznek renderelve (VRAM optimalizáció)
 
 -- ===== MATRICA PONTOK (real_markers integráció) =====
 -- Ha a real_markers resource fut, ezeken a pontokon jelenik meg egy marker

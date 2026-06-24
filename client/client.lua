@@ -181,6 +181,15 @@ CreateThread(function()
                         -- Start editor on select
                         if WarMenu.IsItemSelected() then
                             local vehicle = NetworkGetEntityFromNetworkId(SelectedVehicle)
+
+                            -- Lazy-load image texture ha szükséges
+                            if sticker.isImage then
+                                if not EnsureImageStickerLoaded(sticker) then
+                                    ShowNotification("~r~A matrica képe nem tölthető be!")
+                                    goto continueSticker
+                                end
+                            end
+
                             local identifier = GetUsableIdentifier()
 
                             print("[STICKER] Selected! SelectedVehicle=" .. tostring(SelectedVehicle) .. " vehicle=" .. tostring(vehicle) .. " identifier=" .. tostring(identifier))
@@ -218,6 +227,7 @@ CreateThread(function()
                                 ShowNotification("~r~Nincs szabad matrica slot!")
                             end
                         end
+                        ::continueSticker::
                     end
                 end
             end
