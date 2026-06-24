@@ -157,22 +157,23 @@ CreateThread(function()
             if selectedStickers then
                 for i, sticker in ipairs(selectedStickers) do
                     local name = sticker.name
+                    local displayName = sticker.displayName or sticker.name
                     local price = sticker.price
                     local dict = sticker.dict
 
-                    if DoesStickerTextureExist(name, dict) then
+                    if sticker.isImage or DoesStickerTextureExist(name, dict) then
                         -- Show button with price
                         if NO_FRAMEWORK then
-                            WarMenu.Button(name)
+                            WarMenu.Button(displayName)
                         elseif price > 0 then
-                            local priceText = (Config.Text.MENU_BUTTON_PRICE or "~g~$%s"):format(price)
-                            WarMenu.Button(name, priceText)
+                            local priceText = (Config.Text.MENU_BUTTON_PRICE or "~g~%s Ft"):format(price)
+                            WarMenu.Button(displayName, priceText)
                         else
-                            WarMenu.Button(name, Config.Text.MENU_BUTTON_FREE or "~g~FREE")
+                            WarMenu.Button(displayName, Config.Text.MENU_BUTTON_FREE or "~g~INGYENES")
                         end
 
-                        -- Preview on hover
-                        if WarMenu.IsItemHovered() then
+                        -- Preview on hover (only for YTD stickers)
+                        if WarMenu.IsItemHovered() and not sticker.isImage then
                             local w, h = GetStickerResolution(name, dict, 0.5)
                             DrawSprite(dict, name, 0.5, 0.5, w, h, 0.0, 255, 255, 255, 255)
                         end

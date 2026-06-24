@@ -48,6 +48,27 @@ Config.EditorOptions = {
     minScale = 0.1, -- The minimum scale of the sticker in editor
 }
 
+-- ===== KÉPES MATRICÁK (PNG/WebP automatikus felismerés) =====
+-- A stickers/ mappába tett PNG/WebP/JPG fájlok automatikusan megjelennek a menüben!
+-- Mappastruktúra:
+--   stickers/
+--   ├── Markak/           ← mappa neve = kategória neve a menüben
+--   │   ├── BMW.png
+--   │   ├── Audi.webp
+--   │   └── Mercedes.png
+--   ├── JDM/
+--   │   ├── Initial D.png
+--   │   └── Turbo.webp
+--   └── Egyeb/
+--       ├── Koponya.png
+--       └── Lang.webp
+--
+-- A fájl neve (kiterjesztés nélkül) = matrica neve a menüben
+-- Nem kell kézzel hozzáadni a Config.Stickers táblához!
+
+Config.DefaultStickerPrice = 500 -- Alapértelmezett ár (Ft) ha nincs külön megadva
+Config.StickerCurrency = 'Ft' -- Pénznem megjelenítés
+
 -- ===== MATRICA PONTOK (real_markers integráció) =====
 -- Ha a real_markers resource fut, ezeken a pontokon jelenik meg egy marker
 -- ahol a játékos megnyithatja a matrica menüt (a járműre nézve)
@@ -95,40 +116,40 @@ Config.Controls['EDITOR_ROTATE_RIGHT'] = 175 -- Arrow Right
 Config.Text = {}
 
 -- All text labels used in this script
-Config.Text['EDITOR_PLACE']      = 'Place ($%s)'
-Config.Text['EDITOR_SCALE']      = 'Scale (%sx)'
-Config.Text['EDITOR_ROTATE']     = 'Rotate (%s°)'
-Config.Text['EDITOR_SPEED']      = 'Speed (Hold)'
-Config.Text['EDITOR_LOCK_ON']    = 'Lock Position (On)'
-Config.Text['EDITOR_LOCK_OFF']   = 'Lock Position (Off)'
-Config.Text['EDITOR_MIRROR_ON']  = 'Mirror (On)'
-Config.Text['EDITOR_MIRROR_OFF'] = 'Mirror (Off)'
-Config.Text['EDITOR_REMOVE']     = 'Remove'
-Config.Text['EDITOR_CANCEL']     = 'Cancel'
+Config.Text['EDITOR_PLACE']      = 'Felrakás (%s Ft)'
+Config.Text['EDITOR_SCALE']      = 'Méret (%sx)'
+Config.Text['EDITOR_ROTATE']     = 'Forgatás (%s°)'
+Config.Text['EDITOR_SPEED']      = 'Gyorsítás (Tartsd)'
+Config.Text['EDITOR_LOCK_ON']    = 'Pozíció zárolva'
+Config.Text['EDITOR_LOCK_OFF']   = 'Pozíció szabad'
+Config.Text['EDITOR_MIRROR_ON']  = 'Tükrözés (Be)'
+Config.Text['EDITOR_MIRROR_OFF'] = 'Tükrözés (Ki)'
+Config.Text['EDITOR_REMOVE']     = 'Eltávolítás'
+Config.Text['EDITOR_CANCEL']     = 'Mégse'
 
-Config.Text['ERROR_WRONG_ENTITY']    = 'You can place stickers on vehicles only.'
-Config.Text['ERROR_NO_ACCESS_PLACE'] = 'You cannot place stickers on this vehicle.'
-Config.Text['ERROR_NO_ACCESS_EDIT']  = 'You cannot edit stickers on this vehicle.'
-Config.Text['ERROR_NO_ENTITY']       = 'You are not looking at any vehicle.'
-Config.Text['ERROR_OUT_OF_RANGE']    = 'You went too far from the vehicle.'
-Config.Text['ERROR_MAX_STICKERS']    = 'This vehicle has already reached maximum amount of stickers.'
-Config.Text['ERROR_NO_STICKERS']     = 'This vehicle has no stickers on it.'
-Config.Text['ERROR_NO_MONEY']        = 'You do not have enough money for this sticker.'
-Config.Text['ERROR_NOT_ALLOWED']     = 'You are not allowed to place this sticker.'
+Config.Text['ERROR_WRONG_ENTITY']    = 'Matricát csak járműre rakhatsz.'
+Config.Text['ERROR_NO_ACCESS_PLACE'] = 'Nincs jogosultságod matricát rakni erre a járműre.'
+Config.Text['ERROR_NO_ACCESS_EDIT']  = 'Nincs jogosultságod szerkeszteni ennek a járműnek a matricáit.'
+Config.Text['ERROR_NO_ENTITY']       = 'Nincs jármű a közeledben.'
+Config.Text['ERROR_OUT_OF_RANGE']    = 'Túl messzire mentél a járműtől.'
+Config.Text['ERROR_MAX_STICKERS']    = 'Ez a jármű elérte a maximális matricaszámot.'
+Config.Text['ERROR_NO_STICKERS']     = 'Ezen a járművön nincs matrica.'
+Config.Text['ERROR_NO_MONEY']        = 'Nincs elég pénzed ehhez a matricához.'
+Config.Text['ERROR_NOT_ALLOWED']     = 'Nincs jogosultságod ehhez a matricához.'
 
-Config.Text['SUCCESS_PLACED']  = 'Sticker has been successfully placed.'
-Config.Text['SUCCESS_EDITED']  = 'Sticker has been successfully edited.'
-Config.Text['SUCCESS_REMOVED'] = 'Sticker has been successfully removed.'
+Config.Text['SUCCESS_PLACED']  = 'Matrica sikeresen felrakva!'
+Config.Text['SUCCESS_EDITED']  = 'Matrica sikeresen szerkesztve!'
+Config.Text['SUCCESS_REMOVED'] = 'Matrica sikeresen eltávolítva!'
 
-Config.Text['MENU_BUTTON_ADD']   = 'Add'
-Config.Text['MENU_BUTTON_EDIT']  = 'Edit'
-Config.Text['MENU_BUTTON_PRICE'] = '~g~$%s'
-Config.Text['MENU_BUTTON_FREE']  = '~g~FREE'
+Config.Text['MENU_BUTTON_ADD']   = 'Hozzáadás'
+Config.Text['MENU_BUTTON_EDIT']  = 'Szerkesztés'
+Config.Text['MENU_BUTTON_PRICE'] = '~g~%s Ft'
+Config.Text['MENU_BUTTON_FREE']  = '~g~INGYENES'
 
-Config.Text['MENU_MAIN_TITLE']        = 'STICKERS'
-Config.Text['MENU_MAIN_SUBTITLE']     = 'Options'
-Config.Text['MENU_EDIT_SUBTITLE']     = 'Existing stickers' 
-Config.Text['MENU_CATEGORY_SUBTITLE'] = 'Categories' 
+Config.Text['MENU_MAIN_TITLE']        = 'MATRICÁK'
+Config.Text['MENU_MAIN_SUBTITLE']     = 'Válassz műveletet'
+Config.Text['MENU_EDIT_SUBTITLE']     = 'Meglévő matricák'
+Config.Text['MENU_CATEGORY_SUBTITLE'] = 'Kategóriák' 
 
 -- All available stickers
 --[[

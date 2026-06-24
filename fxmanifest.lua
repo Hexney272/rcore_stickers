@@ -25,6 +25,7 @@ client_scripts {
     'client/framework/*.lua',
     'client/utils.lua',
     'client/sticker.lua',
+    'client/image_loader.lua',
     'client/menu.lua',
     'client/tooltip.lua',
     'client/editor.lua',
@@ -37,7 +38,15 @@ server_scripts {
     'server/db/api.lua',
     'server/framework/*.lua',
     'server/utils.lua',
+    'server/image_scanner.lua',
     'server/server.lua',
+}
+
+files {
+    'stickers/**/*.png',
+    'stickers/**/*.webp',
+    'stickers/**/*.jpg',
+    'stickers/**/*.jpeg',
 }
 
 dependencies {
