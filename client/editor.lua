@@ -150,6 +150,14 @@ function StartEditor(mapId, stickerName, existingSticker, vehicle, callback)
             Wait(0)
             Tooltip:Draw()
 
+            -- Ütés/lövés letiltása az editor alatt (bal klikk = matrica pozicionálás, ne üssön)
+            DisableControlAction(0, 24, true)  -- INPUT_ATTACK
+            DisableControlAction(0, 25, true)  -- INPUT_AIM
+            DisableControlAction(0, 140, true) -- INPUT_MELEE_ATTACK_LIGHT
+            DisableControlAction(0, 141, true) -- INPUT_MELEE_ATTACK_HEAVY
+            DisableControlAction(0, 142, true) -- INPUT_MELEE_ATTACK_ALTERNATE
+            DisableControlAction(0, 257, true) -- INPUT_ATTACK2
+
             -- Raycast from camera
             local _, _, rayPos, rayNormal, rayEntity = ShapeTestFromGameplayCam()
 

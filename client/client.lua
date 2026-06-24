@@ -108,6 +108,18 @@ CreateThread(function()
                             local vehicle = NetworkGetEntityFromNetworkId(SelectedVehicle)
                             local identifier = GetUsableIdentifier()
 
+                            -- Játékos kiszállítása a járműből ha benne ül
+                            local playerPed = PlayerPedId()
+                            if IsPedInAnyVehicle(playerPed, false) then
+                                TaskLeaveVehicle(playerPed, GetVehiclePedIsIn(playerPed, false), 0)
+                                local exitTimeout = 0
+                                while IsPedInAnyVehicle(playerPed, false) and exitTimeout < 50 do
+                                    Wait(100)
+                                    exitTimeout = exitTimeout + 1
+                                end
+                                Wait(500) -- Várunk hogy teljesen kiszálljon
+                            end
+
                             print("[STICKER] Selected! SelectedVehicle=" .. tostring(SelectedVehicle) .. " vehicle=" .. tostring(vehicle) .. " identifier=" .. tostring(identifier))
 
                             if identifier == nil then
