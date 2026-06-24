@@ -382,13 +382,12 @@ CreateThread(function()
             helpText = point.helpText or '~INPUT_CONTEXT~ Matrica',
             drawDistance = point.drawDistance or 25.0,
             interactDistance = point.interactDistance or 3.0,
-            event = 'rcore_stickers:openMenu',
+            event = 'rcore_stickers:markerInteract',
         })
     end
 end)
 
--- Handle the marker interaction event
-AddEventHandler('rcore_stickers:openMenu', function(markerId, args)
-    -- This is triggered by real_markers when player interacts with a sticker point
+-- Handle the marker interaction event (separate from the accessibility event)
+AddEventHandler('rcore_stickers:markerInteract', function(markerId, args)
     OpenStickerMenu()
 end)
