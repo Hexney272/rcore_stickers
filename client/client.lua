@@ -367,27 +367,55 @@ CreateThread(function()
 end)
 
 -- ========== real_markers Integration ==========
--- Register sticker interaction points using real_markers exports
+-- Register sticker interaction points using real_markers exports (useImage mode)
 CreateThread(function()
     -- Wait for real_markers to be started
-    if GetResourceState('real_markers') ~= 'started' then return end
+    local timeout = 0
+    while GetResourceState('real_markers') ~= 'started' and timeout < 10 do
+        Wait(1000)
+        timeout = timeout + 1
+    end
 
-    Wait(2000) -- Give real_markers time to initialize
+    if GetResourceState('real_markers') ~= 'started' then
+        print("^1[rcore_stickers] real_markers resource nincs elindítva! A matrica markerek nem fognak megjelenni.^7")
+        return
+    end
+
+    Wait(500)
 
     for _, point in ipairs(Config.StickerPoints or {}) do
-        exports['real_markers']:RegisterCustomMarker(point.id, {
+        exports['real_markers']:RegisterImageMarker(point.id, {
             coords = point.coords,
             style = point.style or 'mechanic',
-            title = point.title or 'Matrica felrakás',
+            title = point.title or 'Matrica',
             helpText = point.helpText or '~INPUT_CONTEXT~ Matrica',
-            drawDistance = point.drawDistance or 25.0,
-            interactDistance = point.interactDistance or 3.0,
+            icon = 'wrench',
+            useImage = true,
+            imageScale = 1.8,
+            zOffset = 0.85,
+            labelDistance = 3.0,
+            interactDistance = point.interactDistance or 2.0,
+            drawDistance = point.drawDistance or 8.0,
+            color = { r=255, g=200, b=60, a=170 },
+            theme = 'amber',
             event = 'rcore_stickers:markerInteract',
         })
     end
+
+    print("^2[rcore_stickers] Matrica markerek sikeresen regisztrálva (" .. #(Config.StickerPoints or {}) .. " pont)^7")
 end)
 
--- Handle the marker interaction event (separate from the accessibility event)
+-- Cleanup on resource stop
+AddEventHandler('onResourceStop', function(resourceName)
+    if GetCurrentResourceName() ~= resourceName then return end
+    if GetResourceState('real_markers') ~= 'started' then return end
+
+    for _, point in ipairs(Config.StickerPoints or {}) do
+        exports['real_markers']:RemoveCustomMarker(point.id)
+    end
+end)
+
+-- Handle the marker interaction event
 AddEventHandler('rcore_stickers:markerInteract', function(markerId, args)
     OpenStickerMenu()
 end)

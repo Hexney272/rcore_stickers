@@ -56,27 +56,24 @@ Config.StickerPoints = {
     {
         id = 'sticker_point_1',
         coords = vec3(-337.39, -136.87, 39.01), -- Példa: Burton LSC
-        style = 'mechanic',
-        title = 'Matrica felrakás',
+        title = 'Matrica',
         helpText = '~INPUT_CONTEXT~ Matrica',
-        drawDistance = 25.0,
-        interactDistance = 3.0,
+        drawDistance = 8.0,
+        interactDistance = 2.0,
     },
     {
         id = 'sticker_point_2',
         coords = vec3(732.23, -1088.79, 22.17), -- Példa: La Mesa LSC
-        style = 'mechanic',
-        title = 'Matrica felrakás',
+        title = 'Matrica',
         helpText = '~INPUT_CONTEXT~ Matrica',
-        drawDistance = 25.0,
-        interactDistance = 3.0,
+        drawDistance = 8.0,
+        interactDistance = 2.0,
     },
     -- Adj hozzá több pontot:
     -- {
     --     id = 'sticker_point_3',
     --     coords = vec3(x, y, z),
-    --     style = 'mechanic',
-    --     title = 'Matrica felrakás',
+    --     title = 'Matrica',
     --     helpText = '~INPUT_CONTEXT~ Matrica',
     -- },
 }

@@ -44,4 +44,4 @@ dependencies {
     '/server:4752',
     '/onesync',
 }
-dependency '/assetpacks'
+-- dependency '/assetpacks' -- Removed: Tebex escrow-only dependency
