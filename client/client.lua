@@ -4,6 +4,8 @@
 -- Sticker sync events, texture loading
 -- ============================================================
 
+local stickerSessionActive = false -- Jelzi hogy éppen matricázunk (marker elrejtés)
+
 -- ========== Menu Open (via event or command) ==========
 if Config.Accessibility.event then
     RegisterNetEvent('rcore_stickers:openMenu')
@@ -18,14 +20,79 @@ end
 
 function OpenStickerMenu()
     SelectedVehicle = 0
-    local _, _, _, _, entity = ShapeTestFromGameplayCam()
+    local playerPed = PlayerPedId()
+    local playerCoords = GetEntityCoords(playerPed)
 
-    if entity ~= 0 then
-        local netId = NetworkGetNetworkIdFromEntity(entity)
-        TriggerServerEvent("lsrp_stickers:openMenu", netId)
-    else
-        local msg = Config.Text.ERROR_NO_ENTITY or "You are not looking at any vehicle."
-        ShowNotification(msg)
+    -- Játékos kiszállítása ha járműben ül
+    if IsPedInAnyVehicle(playerPed, false) then
+        TaskLeaveVehicle(playerPed, GetVehiclePedIsIn(playerPed, false), 0)
+        local exitTimeout = 0
+        while IsPedInAnyVehicle(playerPed, false) and exitTimeout < 50 do
+            Wait(100)
+            exitTimeout = exitTimeout + 1
+        end
+        Wait(500)
+        playerPed = PlayerPedId()
+        playerCoords = GetEntityCoords(playerPed)
+    end
+
+    -- Saját jármű keresése 5 méteren belül
+    local closestVehicle = nil
+    local closestDist = 999.0
+    local vehicles = GetGamePool("CVehicle")
+
+    for _, vehicle in ipairs(vehicles) do
+        -- Csak networked (mission entity) járművek (sajátok)
+        if GetEntityPopulationType(vehicle) == 7 then
+            local vehCoords = GetEntityCoords(vehicle)
+            local dist = #(playerCoords - vehCoords)
+            if dist < closestDist then
+                closestDist = dist
+                closestVehicle = vehicle
+            end
+        end
+    end
+
+    -- Ellenőrzések
+    if not closestVehicle then
+        ShowNotification("~r~Nincs jármű a közelben!")
+        return
+    end
+
+    if closestDist > 5.0 then
+        ShowNotification("~r~A járművednek 5 méteren belül kell lennie!")
+        return
+    end
+
+    if not DoesEntityExist(closestVehicle) then
+        ShowNotification("~r~A jármű nem elérhető!")
+        return
+    end
+
+    local netId = NetworkGetNetworkIdFromEntity(closestVehicle)
+    if netId == 0 then
+        ShowNotification("~r~A jármű nem szinkronizálható!")
+        return
+    end
+
+    -- Marker elrejtése amíg matricázunk
+    if not stickerSessionActive then
+        stickerSessionActive = true
+        if GetResourceState('real_markers') == 'started' then
+            exports['real_markers']:SuppressMarkers(true)
+        end
+    end
+
+    TriggerServerEvent("lsrp_stickers:openMenu", netId)
+end
+
+-- Matricázás befejezése (marker visszakapcsolása)
+function EndStickerSession()
+    if stickerSessionActive then
+        stickerSessionActive = false
+        if GetResourceState('real_markers') == 'started' then
+            exports['real_markers']:SuppressMarkers(false)
+        end
     end
 end
 
@@ -61,6 +128,13 @@ CreateThread(function()
             WarMenu.MenuButton(Config.Text.MENU_BUTTON_ADD or "Add", "STICKERS_CATEGORY")
             WarMenu.MenuButton(Config.Text.MENU_BUTTON_EDIT or "Edit", "STICKERS_EDIT")
             WarMenu.End()
+
+            -- Ha a főmenüben Backspace-t nyomnak, session vége
+            if IsControlJustPressed(0, 177) then
+                WarMenu.CloseMenu()
+                EndStickerSession()
+                SelectedVehicle = 0
+            end
         end
 
         -- Category selection menu
@@ -108,18 +182,6 @@ CreateThread(function()
                             local vehicle = NetworkGetEntityFromNetworkId(SelectedVehicle)
                             local identifier = GetUsableIdentifier()
 
-                            -- Játékos kiszállítása a járműből ha benne ül
-                            local playerPed = PlayerPedId()
-                            if IsPedInAnyVehicle(playerPed, false) then
-                                TaskLeaveVehicle(playerPed, GetVehiclePedIsIn(playerPed, false), 0)
-                                local exitTimeout = 0
-                                while IsPedInAnyVehicle(playerPed, false) and exitTimeout < 50 do
-                                    Wait(100)
-                                    exitTimeout = exitTimeout + 1
-                                end
-                                Wait(500) -- Várunk hogy teljesen kiszálljon
-                            end
-
                             print("[STICKER] Selected! SelectedVehicle=" .. tostring(SelectedVehicle) .. " vehicle=" .. tostring(vehicle) .. " identifier=" .. tostring(identifier))
 
                             if identifier == nil then
@@ -137,13 +199,22 @@ CreateThread(function()
                                             ActiveIdentifiers[stickerResult.mapId] = false
                                             TriggerServerEvent("lsrp_stickers:placeSticker", SelectedVehicle, stickerResult)
                                         end
+                                        -- Matrica sikeresen felrakva -> menü újranyitása a következő matricához
+                                        Wait(300)
+                                        if SelectedVehicle ~= 0 then
+                                            WarMenu.OpenMenu("STICKERS_MAIN")
+                                        end
+                                    else
+                                        -- Backspace/Cancel -> befejezzük a teljes session-t
+                                        EndStickerSession()
+                                        SelectedVehicle = 0
                                     end
-                                    SelectedVehicle = 0
                                 end)
 
                                 WarMenu.CloseMenu()
                             else
                                 print("[STICKER] ERROR: No identifier available!")
+                                ShowNotification("~r~Nincs szabad matrica slot!")
                             end
                         end
                     end
@@ -194,8 +265,16 @@ CreateThread(function()
                                         -- Deleted (empty table)
                                         TriggerServerEvent("lsrp_stickers:deleteSticker", SelectedVehicle, sticker)
                                     end
+                                    -- Szerkesztés/törlés után menü újranyitása
+                                    Wait(300)
+                                    if SelectedVehicle ~= 0 then
+                                        WarMenu.OpenMenu("STICKERS_MAIN")
+                                    end
+                                else
+                                    -- Backspace/Cancel -> session vége
+                                    EndStickerSession()
+                                    SelectedVehicle = 0
                                 end
-                                SelectedVehicle = 0
                             end)
 
                             hoveredStickerId = 0
@@ -430,4 +509,14 @@ end)
 -- Handle the marker interaction event
 AddEventHandler('rcore_stickers:markerInteract', function(markerId, args)
     OpenStickerMenu()
+end)
+
+-- Ha a WarMenu bezárul (pl. ESC) és még aktív a session, fejezzük be
+CreateThread(function()
+    while true do
+        if stickerSessionActive and not WarMenu.IsAnyMenuOpened() and SelectedVehicle == 0 then
+            EndStickerSession()
+        end
+        Wait(1000)
+    end
 end)
